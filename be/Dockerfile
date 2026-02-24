@@ -1,4 +1,4 @@
-﻿# Trigger Build v5
+﻿# Trigger Build v6
 FROM php:8.4-apache
 
 # Install system dependencies
@@ -15,8 +15,10 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql pdo_sqlite bcmath gd mbstring \
     && rm -rf /var/lib/apt/lists/*
 
-# Fix Apache MPM configuration - explicitly disable conflicting modules
-RUN a2dismod mpm_event mpm_worker 2>/dev/null || true \
+# Definitive Fix for Apache MPM configuration
+# Aggressively remove all MPM modules and enable only prefork
+RUN rm -f /etc/apache2/mods-enabled/mpm_* \
+    && a2dismod mpm_event mpm_worker 2>/dev/null || true \
     && a2enmod mpm_prefork rewrite
 
 # Set working directory
