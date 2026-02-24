@@ -13,6 +13,14 @@ import axios from 'axios'
 
 axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
 
+// Đảm bảo tất cả các request đều có tiền tố /api nếu chưa có
+axios.interceptors.request.use(config => {
+  if (config.url && config.url.startsWith('/') && !config.url.startsWith('/api') && !config.url.startsWith('http')) {
+    config.url = '/api' + config.url;
+  }
+  return config;
+});
+
 
 const app = createApp(App);
 
