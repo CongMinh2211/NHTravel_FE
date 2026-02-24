@@ -1,36 +1,19 @@
-#!/bin/sh
+﻿#!/bin/sh
 
-echo "--- Starting Entrypoint Script (Debug version) ---"
+echo "--- Starting Entrypoint Script ---"
 
-# Debug env
-echo "Current PORT: ${PORT}"
-
-# Đảm bảo thư mục storage ghi được
-chmod -R 777 /app/storage
-chmod -R 777 /app/bootstrap/cache
-
+# Set up environment
 echo "Running migrations..."
-# Chạy migrate --force để cập nhật DB cấu trúc mới (không mất dữ liệu cũ)
-php artisan migrate --force || echo "Migration failed, continuing anyway..."
+php artisan migrate --force
 
-echo "Checking if database needs seeding..."
-USER_COUNT=$(php artisan tinker --execute="echo App\Models\NguoiDung::count();")
-if [ "$USER_COUNT" = "0" ]; then
-    echo "Database is empty. Seeding initial data..."
-    php artisan db:seed --force
-else
-    echo "Database already has data ($USER_COUNT users). Skipping seed."
-fi
+echo "Caching configuration and routes..."
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 
-# Kiểm tra file log nếu có lỗi
-touch /app/storage/logs/laravel.log
-chmod 777 /app/storage/logs/laravel.log
+# Set permissions again just in case
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data /var/www/html
 
-# Clear và optimize Laravel
-php artisan config:clear
-php artisan cache:clear
-php artisan route:clear
-
-echo "Starting Laravel Server on port ${PORT:-8000}..."
-# Trở về dùng artisan serve để đúng chuẩn Laravel
-exec php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+echo "Starting Apache..."
+exec apache2-foreground
