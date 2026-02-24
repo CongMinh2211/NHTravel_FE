@@ -475,7 +475,7 @@ export default {
             return 'https://cdn-icons-png.flaticon.com/512/3202/3202926.png';
         },
         getPhuongTien() {
-            axios.get('http://127.0.0.1:8000/api/admin/phuong-tien/get-data', {
+            axios.get('/admin/phuong-tien/get-data', {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -490,7 +490,7 @@ export default {
 
 
         getListTour() {
-            axios.get('http://127.0.0.1:8000/api/admin/tour/get-data', {
+            axios.get('/admin/tour/get-data', {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -508,7 +508,7 @@ export default {
 
         themPhuongTien() {
             if (!this.validateForm()) { return; }
-            axios.post('http://127.0.0.1:8000/api/admin/phuong-tien/add-data', this.create_phuongtien, {
+            axios.post('/admin/phuong-tien/add-data', this.create_phuongtien, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -521,7 +521,7 @@ export default {
                     }
 
                     let idPT = res.data.data.id;
-                    return axios.post('http://127.0.0.1:8000/api/admin/tour-pt/add-data', {
+                    return axios.post('/admin/tour-pt/add-data', {
                         id_tour: this.create_phuongtien.id_tour,
                         id_phuong_tien: idPT,
                         ghi_chu: this.create_phuongtien.ghi_chu,
@@ -547,7 +547,7 @@ export default {
         },
 
         capNhatPhuongTien() {
-            axios.post('http://127.0.0.1:8000/api/admin/phuong-tien/update', this.edit_phuongtien,
+            axios.post('/admin/phuong-tien/update', this.edit_phuongtien,
                 {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem("auth_token")
@@ -561,7 +561,7 @@ export default {
                     }
 
                     if (this.edit_phuongtien.tours && this.edit_phuongtien.tours.id) {
-                        return axios.post('http://127.0.0.1:8000/api/admin/tour-pt/update', {
+                        return axios.post('/admin/tour-pt/update', {
                             id: this.edit_phuongtien.tours.id, // ID dòng phân công
                             id_tour: this.edit_phuongtien.id_tour,
                             id_phuong_tien: this.edit_phuongtien.id,
@@ -588,7 +588,7 @@ export default {
                 }
             };
 
-            axios.get(`http://127.0.0.1:8000/api/admin/tour-pt/get-by-pt/${pt.id}`)
+            axios.get(`/admin/tour-pt/get-by-pt/${pt.id}`)
                 .then((res) => {
                     if (res.data.data.length > 0) {
                         let t = res.data.data[0];
@@ -600,7 +600,7 @@ export default {
 
         openDetail(pt) {
             this.currentPhuongTien = pt;
-            axios.get(`http://127.0.0.1:8000/api/admin/tour-pt/get-by-pt/${pt.id}`)
+            axios.get(`/admin/tour-pt/get-by-pt/${pt.id}`)
                 .then((res) => {
                     this.currentPhuongTien = {
                         ...pt,
@@ -611,7 +611,7 @@ export default {
         },
 
         xoaPhuongTien() {
-            axios.post('http://127.0.0.1:8000/api/admin/phuong-tien/delete', {
+            axios.post('/admin/phuong-tien/delete', {
                 id: this.delete_phuongtien.id,
 
             }, {
@@ -631,7 +631,7 @@ export default {
         },
 
         doiTrangThai(pt) {
-            axios.post('http://127.0.0.1:8000/api/admin/phuong-tien/chang-status', { id: pt.id },
+            axios.post('/admin/phuong-tien/chang-status', { id: pt.id },
                 {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem("auth_token")

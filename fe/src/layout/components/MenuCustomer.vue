@@ -129,6 +129,7 @@
 
 <script>
 import axios from "axios";
+import * as bootstrap from 'bootstrap';
 
 export default {
     data() {
@@ -153,15 +154,6 @@ export default {
 
     mounted() {
         this.checkLogin();
-        // ⭐ FIX DROPDOWN: Khởi tạo Dropdown của Bootstrap sau khi Vue mount
-        // Lỗi này xảy ra vì Vue Router chặn Bootstrap JS.
-        if (typeof bootstrap !== 'undefined' && document.getElementById('tourDropdownTrigger')) {
-             new bootstrap.Dropdown(document.getElementById('tourDropdownTrigger'));
-        }
-        // Khởi tạo Dropdown User cũng cần thiết nếu nó không tự động hoạt động
-        if (typeof bootstrap !== 'undefined' && document.querySelector('.user-pill')) {
-             new bootstrap.Dropdown(document.querySelector('.user-pill'));
-        }
     },
 
     methods: {
@@ -169,7 +161,7 @@ export default {
             const token = localStorage.getItem("auth_token");
             if (!token) return;
 
-            axios.get("http://127.0.0.1:8000/api/thong-tin", {
+            axios.get("/thong-tin", {
                 headers: { Authorization: "Bearer " + token }
             })
                 .then(res => {
@@ -185,7 +177,7 @@ export default {
             const token = localStorage.getItem("auth_token");
             if (!token) return;
 
-            axios.post("http://127.0.0.1:8000/api/dang-xuat", {}, {
+            axios.post("/dang-xuat", {}, {
                 headers: { Authorization: "Bearer " + token }
             })
                 .then(() => {

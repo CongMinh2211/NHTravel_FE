@@ -52,6 +52,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'Chatbot',
   data() {
@@ -109,58 +111,40 @@ export default {
 
       try {
         let response;
-        const apiUrl = 'http://localhost:8000/api';
-
         if (this.isPublicMode) {
           // Gọi endpoint public
-          response = await fetch(`${apiUrl}/chatbot/ask`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ question: message })
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
+          response = await axios.post('/chatbot/ask', { question: message });
           
-          if (!data.success) {
-            throw new Error(data.error || 'Lỗi từ server');
+          if (!response.data.success) {
+            throw new Error(response.data.error || 'Lỗi từ server');
           }
 
           this.messages.push({
-            noi_dung: data.answer,
+            noi_dung: response.data.answer,
             loai_tin_nhan: 'bot',
             created_at: new Date().toISOString(),
             timestamp: new Date().toISOString()
           });
         } else {
           // Gọi endpoint protected
-          response = await fetch(`${apiUrl}/chatbot/send-message`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${this.token}`
-            },
-            body: JSON.stringify({
+          response = await axios.post('/chatbot/send-message', 
+            {
               id_khach_hang: this.userId,
               noi_dung: message
-            })
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const data = await response.json();
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${this.token}`
+              }
+            }
+          );
           
-          if (!data.success) {
-            throw new Error(data.error || 'Lỗi từ server');
+          if (!response.data.success) {
+            throw new Error(response.data.error || 'Lỗi từ server');
           }
 
           this.messages.push({
-            noi_dung: data.message,
+            noi_dung: response.data.message,
             loai_tin_nhan: 'bot',
             created_at: new Date().toISOString(),
             timestamp: new Date().toISOString()
@@ -171,7 +155,7 @@ export default {
           this.scrollToBottom();
         });
       } catch (err) {
-        const errorMsg = err.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
+        const errorMsg = err.response?.data?.message || err.message || 'Có lỗi xảy ra. Vui lòng thử lại.';
         this.error = errorMsg;
         console.error('Chatbot Error:', err);
 
@@ -188,23 +172,14 @@ export default {
     },
     async loadChatHistory() {
       try {
-        const apiUrl = 'http://localhost:8000/api';
-        const response = await fetch(
-          `${apiUrl}/chatbot/history/${this.userId}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${this.token}`
-            }
+        const response = await axios.get(`/chatbot/history/${this.userId}`, {
+          headers: {
+            'Authorization': `Bearer ${this.token}`
           }
-        );
+        });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        if (data.success) {
-          this.messages = data.data;
+        if (response.data.success) {
+          this.messages = response.data.data;
           this.$nextTick(() => {
             this.scrollToBottom();
           });
@@ -253,8 +228,7 @@ export default {
     },
     clearHistory() {
       if (!this.isPublicMode && confirm('Bạn có chắc chắn muốn xóa lịch sử chat?')) {
-        const apiUrl = 'http://localhost:8000/api';
-        fetch(`${apiUrl}/chatbot/clear-history/${this.userId}`, {
+        fetch(`${this.apiUrl}/chatbot/clear-history/${this.userId}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${this.token}`

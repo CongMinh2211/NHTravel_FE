@@ -329,7 +329,7 @@ export default {
         },
 
         loadDoanhThuTheoNgay() {
-            axios.get("http://localhost:8000/api/admin/doanh-thu-ngay", {
+            axios.get("/admin/doanh-thu-ngay", {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {
@@ -345,7 +345,7 @@ export default {
         },
 
         loadTongTourHoatDong() {
-            axios.get("http://localhost:8000/api/admin/dashboard", {
+            axios.get("/admin/dashboard", {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {
@@ -359,7 +359,7 @@ export default {
         },
 
         thongKeDoanhThu() {
-            axios.get("http://localhost:8000/api/admin/thong-ke-doanh-thu", {
+            axios.get("/admin/thong-ke-doanh-thu", {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {
@@ -374,7 +374,7 @@ export default {
                 .catch(err => console.error(err));
         }
         , thongKeTopTourTrongThang() {
-            axios.get("http://localhost:8000/api/admin/top-tour-thang", {
+            axios.get("/admin/top-tour-thang", {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {
@@ -394,21 +394,21 @@ export default {
                 .catch(err => console.error(err));
         },
         getDanhSach() {
-            axios.get('http://127.0.0.1:8000/api/admin/chi-tiet-dat-tour/get-data')
+            axios.get('/admin/chi-tiet-dat-tour/get-data')
                 .then(res => {
                     this.list_don_dat_moi = res.data.data;
                 });
         },
         // list người dùng
         layDataChucVu() {
-            axios.get('http://127.0.0.1:8000/api/admin/chuc-vu/get-data')
+            axios.get('/admin/chuc-vu/get-data')
                 .then(res => {
                     this.list_chuc_vu = res.data.data;
                     //this.$toast.error("Lấy danh sách chức vụ thức bại.");
                 })
         },
         getNguoiDung() {
-            axios.get("http://localhost:8000/api/admin/nguoi-dung", {
+            axios.get("/admin/nguoi-dung", {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {

@@ -620,7 +620,7 @@ export default {
 
 
             axios
-                .get("http://127.0.0.1:8000/api/admin/tour/get-data", {
+                .get("/admin/tour/get-data", {
                     headers: {
                         Authorization: "Bearer " + localStorage.getItem("auth_token")
                     }
@@ -643,7 +643,7 @@ export default {
         },
 
         getTourDetail(id) {
-            axios.get(`http://127.0.0.1:8000/api/admin/tour/${id}`, {
+            axios.get(`/admin/tour/${id}`, {
                 headers: {
                     Authorization: "Bearer " + localStorage.getItem("auth_token")
                 }

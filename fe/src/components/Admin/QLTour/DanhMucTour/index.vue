@@ -196,13 +196,13 @@ export default {
     },
     methods: {
         getListDanhMuc() {
-            axios.get('http://127.0.0.1:8000/api/admin/danh-muc-tour/get-data')
+            axios.get('/admin/danh-muc-tour/get-data')
                 .then(res => {
                     this.list_danh_muc = res.data.data;
                 });
         },
         themDanhMuc() {
-            axios.post('http://127.0.0.1:8000/api/admin/danh-muc-tour/add-data', this.them_danh_muc_tour, {
+            axios.post('/admin/danh-muc-tour/add-data', this.them_danh_muc_tour, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -218,7 +218,7 @@ export default {
                 });
         },
         updateDanhMuc() {
-            axios.post('http://127.0.0.1:8000/api/admin/danh-muc-tour/update', this.update_danh_muc, {
+            axios.post('/admin/danh-muc-tour/update', this.update_danh_muc, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -233,7 +233,7 @@ export default {
                 });
         },
         xoaDanhMuc() {
-            axios.post('http://127.0.0.1:8000/api/admin/danh-muc-tour/delete', this.delete_danh_muc, {
+            axios.post('/admin/danh-muc-tour/delete', this.delete_danh_muc, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -248,7 +248,7 @@ export default {
                 });
         },
         timKiem() {
-            axios.post('http://127.0.0.1:8000/api/admin/danh-muc-tour/tim-kiem', this.tim_kiem)
+            axios.post('/admin/danh-muc-tour/tim-kiem', this.tim_kiem)
                 .then((res) => {
                     this.list_danh_muc = res.data.data;
                 });

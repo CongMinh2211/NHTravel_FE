@@ -91,7 +91,7 @@ export default {
         },
         thongKe() {
             axios
-                .post('http://127.0.0.1:8000/api/admin/thong-ke/don-hang', this.search, {
+                .post('/admin/thong-ke/don-hang', this.search, {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem("key_admin")
                     }

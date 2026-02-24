@@ -12,7 +12,7 @@
                     <input v-model="thong_tin_dang_nhap.email" type="text" class="form-control mt-1"
                         style="border-radius: 90px; width: 465px;">
                     <label style="font-size: 17px;" class="mb-2 ms-3 mt-3">Nhập mật khẩu</label>
-                    <input v-model="thong_tin_dang_nhap.mat_khau_hash" @keydown.enter="dangNhap()" type="password"
+                    <input v-model="thong_tin_dang_nhap.password" @keydown.enter="dangNhap()" type="password"
                         class="form-control mt-1" style="border-radius: 90px; width: 465px;">
 
                     <!-- Nút -->
@@ -65,11 +65,12 @@ export default {
     },
     methods: {
         dangNhap() {
-            axios.post('https://nhtravelbe-variables.up.railway.app/api/admin/dang-nhap', this.thong_tin_dang_nhap)
+            axios.post('/dang-nhap', this.thong_tin_dang_nhap)
                 .then((res) => {
                     if (res.data.status) {
                         this.$toast.success(res.data.message);
                         localStorage.setItem('auth_token', res.data.token)
+                        localStorage.setItem('auth_user', JSON.stringify(res.data.user))
                         this.$router.push('/admin')
                     } else {
                         this.$toast.error(res.data.message);

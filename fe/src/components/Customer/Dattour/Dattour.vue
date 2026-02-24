@@ -257,9 +257,49 @@
                             <h3><b>Tổng tiền</b></h3>
                             <h3><b class="text-danger">{{ formatVND(tien_thuc_nhan) }}</b></h3>
                         </div>
+
+                        <!-- Phương thức thanh toán -->
+                        <hr>
+                        <div class="mb-3">
+                            <h6 class="fw-bold mb-3"><i class="fa-solid fa-credit-card me-2"></i>Phương thức thanh toán</h6>
+                            
+                            <!-- Option 1: SePay -->
+                            <div class="payment-option p-3 border rounded-3 mb-2 cursor-pointer transition-all"
+                                :class="selectedPaymentMethod === 'sepay' ? 'border-primary bg-light shadow-sm' : 'border-light'"
+                                @click="selectedPaymentMethod = 'sepay'">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VIETQR.png" 
+                                        alt="VietQR" style="height: 35px;" class="me-3">
+                                    <div>
+                                        <b :class="selectedPaymentMethod === 'sepay' ? 'text-primary' : ''">Chuyển khoản ngân hàng</b>
+                                        <small class="d-block text-muted">Quét mã VietQR - Tự động xác nhận</small>
+                                    </div>
+                                    <i v-if="selectedPaymentMethod === 'sepay'" class="fa-solid fa-circle-check text-success ms-auto fa-lg"></i>
+                                    <i v-else class="fa-regular fa-circle text-muted ms-auto fa-lg"></i>
+                                </div>
+                            </div>
+
+                            <!-- Option 2: Cash on Arrival -->
+                            <div class="payment-option p-3 border rounded-3 cursor-pointer transition-all"
+                                :class="selectedPaymentMethod === 'cash' ? 'border-primary bg-light shadow-sm' : 'border-light'"
+                                @click="selectedPaymentMethod = 'cash'">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                                    </div>
+                                    <div>
+                                        <b :class="selectedPaymentMethod === 'cash' ? 'text-primary' : ''">Thanh toán khi đi tour</b>
+                                        <small class="d-block text-muted">Thanh toán trực tiếp cho HDV</small>
+                                    </div>
+                                    <i v-if="selectedPaymentMethod === 'cash'" class="fa-solid fa-circle-check text-success ms-auto fa-lg"></i>
+                                    <i v-else class="fa-regular fa-circle text-muted ms-auto fa-lg"></i>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Nút đặt ngay -->
                         <button @click="bookTour" class="btn btn-danger w-100 mt-3" style="font-size: 18px;">
-                            <b v-if="!isBooking">Đặt ngay</b>
+                            <b v-if="!isBooking">Đặt ngay & Thanh toán</b>
                             <b v-else>Đang xử lý...</b>
                         </button>
                     </div>
@@ -344,6 +384,7 @@ export default {
             tien_thuc_nhan: 0,
             agreePolicy: false,
             isBooking: false,
+            selectedPaymentMethod: 'sepay',  // Mặc định là SePay
         };
     },
     methods: {
@@ -399,7 +440,7 @@ export default {
             var payload = {
                 id: this.id_tour
             }
-            axios.post('http://127.0.0.1:8000/api/customer/chi-tiet-dat-tour/get-data', payload)
+            axios.post('/customer/chi-tiet-dat-tour/get-data', payload)
                 .then((res) => {
                     console.log('Dữ liệu trả về:', res.data);
                     if (res.data.status) {
@@ -413,14 +454,14 @@ export default {
         },
         async loadVoucher() {
             this.loadingVoucher = true;
-            let res = await axios.get("http://127.0.0.1:8000/api/customer/voucher/list");
+            let res = await axios.get("/customer/voucher/list");
             if (res.data.status) {
                 this.vouchers = res.data.voucher;
             }
             this.loadingVoucher = false;
         },
         tinhTien() {
-            axios.post("http://127.0.0.1:8000/api/customer/dat-tour/tinh-tien", {
+            axios.post("/customer/dat-tour/tinh-tien", {
                 id_tour: this.id_tour,
                 so_nguoi_lon: this.count_adult,
                 so_tre_em: this.count_child,
@@ -478,7 +519,7 @@ export default {
             // 7) Bật trạng thái loading để disable nút Đặt Ngay
             this.isBooking = true;
 
-            axios.post("http://127.0.0.1:8000/api/customer/dat-tour/dat", {
+            axios.post("/customer/dat-tour/dat", {
                 id_khach_hang: auth.id,
                 id_tour: this.id_tour,
 
@@ -491,11 +532,33 @@ export default {
                 email_lien_lac: this.user.email,
                 so_dien_thoai_lien_lac: this.user.so_dien_thoai,
                 dia_chi_lien_lac: this.user.dia_chi,
+                phuong_thuc_thanh_toan: this.selectedPaymentMethod,
+                id_phuong_tien: this.dat_tour.phuong_tiens?.[0]?.id || null,
             })
                 .then((res) => {
                     if (res.data.status) {
-                        this.$toast.success("Đặt tour thành công!");
-                        this.$router.push("/lich-su-don-hang");
+                        const maDonHang = res.data.data.ma_don_hang;
+                        
+                        if (this.selectedPaymentMethod === 'sepay') {
+                            // Lưu thông tin đơn hàng vào localStorage cho trang thanh toán
+                            localStorage.setItem('pending_order', JSON.stringify({
+                                ma_don_hang: maDonHang,
+                                tien_thuc_nhan: this.tien_thuc_nhan,
+                                ten_tour: this.dat_tour.ten_tour,
+                                expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString()
+                            }));
+                            
+                            // Thông báo cho PaymentBubble
+                            window.dispatchEvent(new Event('payment-started'));
+                            
+                            // Chuyển đến trang thanh toán SePay
+                            this.$toast.success(res.data.message + "! Đang chuyển đến trang thanh toán...");
+                            this.$router.push(`/thanh-toan-sepay/${maDonHang}`);
+                        } else {
+                            // Thanh toán khi đi tour (cash)
+                            this.$toast.success(res.data.message + "! Bạn sẽ thanh toán khi đi tour.");
+                            this.$router.push('/lich-su-don-hang');
+                        }
                     } else {
                         this.$toast.error(res.data.message);
                     }
@@ -504,7 +567,7 @@ export default {
                     this.$toast.error("Có lỗi xảy ra, vui lòng thử lại!");
                 })
                 .finally(() => {
-                    // 8) Tắt trạng thái loading để bật lại nút
+                    // Tắt trạng thái loading để bật lại nút
                     this.isBooking = false;
                 });
         },

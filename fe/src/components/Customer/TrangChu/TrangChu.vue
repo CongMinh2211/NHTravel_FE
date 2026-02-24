@@ -2,28 +2,42 @@
 
     <div class="position-relative">
 
-        <!-- carousel -->
-        <div id="carouselVideo" class="carousel slide" data-bs-ride="carousel" style="width: 100%;">
+        <!-- carousel video du lịch Việt Nam -->
+        <div id="carouselVideo" class="carousel slide" style="width: 100%;">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#carouselVideo" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#carouselVideo" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#carouselVideo" data-bs-slide-to="2"></button>
+            </div>
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <video autoplay loop muted playsinline style="width: 100%; height: 500px; object-fit: cover;">
-                        <source src="../../../assets/images/homecustomer/tour1.mp4" type="video/mp4">
-                        Trình duyệt của bạn không hỗ trợ video.
+                    <video autoplay muted playsinline style="width: 100%; height: 850px; object-fit: cover;" @ended="nextSlide">
+                        <source src="../../../assets/images/homecustomer/vietnam_travel.mp4" type="video/mp4">
                     </video>
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Khám phá Việt Nam</h2>
+                        <p style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">Vẻ đẹp thiên nhiên tuyệt vời</p>
+                    </div>
                 </div>
                 <div class="carousel-item">
-                    <video autoplay loop muted playsinline style="width: 100%; height: 500px; object-fit: cover;">
-                        <source src="../../../assets/images/homecustomer/tour2.mp4" type="video/mp4">
-                        Trình duyệt của bạn không hỗ trợ video.
+                    <video autoplay muted playsinline style="width: 100%; height: 850px; object-fit: cover;" @ended="nextSlide">
+                        <source src="../../../assets/images/homecustomer/vietnam_travel_2.mp4" type="video/mp4">
                     </video>
-                </div>
-                <div class="carousel-item">
-                    <video autoplay loop muted playsinline style="width: 100%; height: 500px; object-fit: cover;">
-                        <source src="../../../assets/images/homecustomer/tour3.mp4" type="video/mp4">
-                        Trình duyệt của bạn không hỗ trợ video.
-                    </video>
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Vẻ đẹp bất tận</h2>
+                        <p style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">Trải nghiệm từng khoảnh khắc</p>
+                    </div>
                 </div>
 
+                <div class="carousel-item">
+                    <video autoplay muted playsinline style="width: 100%; height: 850px; object-fit: cover;" @ended="nextSlide">
+                        <source src="../../../assets/images/homecustomer/vietnam_travel_4.mp4" type="video/mp4">
+                    </video>
+                    <div class="carousel-caption d-none d-md-block">
+                        <h2 class="fw-bold" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">Bản sắc văn hóa</h2>
+                        <p style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">Hào khí Việt Nam</p>
+                    </div>
+                </div>
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselVideo" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon"></span>
@@ -110,6 +124,98 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- LOCATION SUGGESTION SECTION - REDESIGNED -->
+    <div class="location-suggest-section" data-animate="fade-in-up"
+         style="opacity: 0; transform: translateY(30px); transition: all 0.8s ease;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 3rem 0; margin-top: 4rem;">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 style="color: #fff; font-weight: 800; font-size: 2rem; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                    <i class="fa-solid fa-compass me-2" style="animation: spin 4s linear infinite;"></i>
+                    Gợi Ý Điểm Đến Gần Bạn
+                </h2>
+                <p style="color: rgba(255,255,255,0.85); font-size: 1.05rem;">Khám phá những tour du lịch hấp dẫn ngay quanh bạn</p>
+            </div>
+
+            <!-- Chưa bật định vị -->
+            <div v-if="!currentCity && !isLoadingLocation" class="text-center">
+                <button @click="detectLocation" class="btn px-5 py-3 fw-bold"
+                    style="background: rgba(255,255,255,0.95); color: #764ba2; border-radius: 50px;
+                           font-size: 1.1rem; box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                           transition: all 0.3s ease;"
+                    onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 12px 35px rgba(0,0,0,0.25)'"
+                    onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)'">
+                    <i class="fa-solid fa-location-crosshairs me-2"></i> Bật định vị ngay
+                </button>
+            </div>
+
+            <!-- Đang loading -->
+            <div v-if="isLoadingLocation" class="text-center">
+                <div class="spinner-border text-white" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3" style="color: rgba(255,255,255,0.9); font-size: 1.1rem;">{{ currentLocationStatus }}</p>
+            </div>
+
+            <!-- Đã xác định vị trí -->
+            <div v-if="currentCity">
+                <div class="text-center mb-4">
+                    <span style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px);
+                                 padding: 8px 24px; border-radius: 50px; color: #fff; font-weight: 600;
+                                 display: inline-block; border: 1px solid rgba(255,255,255,0.3);">
+                        <i class="fa-solid fa-map-marker-alt me-2"></i>
+                        Vị trí: <strong>{{ currentCity }}</strong>
+                    </span>
+                </div>
+
+                <div v-if="suggestedTours.length > 0" class="row g-4">
+                    <div v-for="(tour, index) in suggestedTours" :key="index" class="col-xl-3 col-lg-4 col-md-6">
+                        <div style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+                                    border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.5);
+                                    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); cursor: pointer;"
+                             onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.2)'"
+                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'">
+                            <div class="position-relative">
+                                <img :src="tour.anh && tour.anh.length > 0 ? tour.anh[0].url : 'https://placehold.co/400x250/667eea/white?text=Tour'"
+                                     style="width: 100%; height: 180px; object-fit: cover;">
+                                <div style="position: absolute; bottom: 0; left: 0; right: 0;
+                                            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+                                            padding: 20px 12px 8px; color: white;">
+                                    <span style="font-size: 0.85rem;"><i class="fa-solid fa-map-pin me-1"></i> {{ tour.dia_diem }}</span>
+                                </div>
+                            </div>
+                            <div style="padding: 14px 16px;">
+                                <h6 style="font-weight: 700; color: #333; margin-bottom: 8px; display: -webkit-box;
+                                           -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+                                           font-size: 0.95rem; line-height: 1.4;">{{ tour.ten_tour }}</h6>
+                                <div style="display: flex; align-items: center; justify-content: space-between;">
+                                    <span style="color: #e53e3e; font-weight: 800; font-size: 1.1rem;">{{ formatVND(tour.gia_nguoi_lon) }}</span>
+                                    <router-link :to="`/chi-tiet-tour/${tour.id}`"
+                                        style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;
+                                               padding: 6px 16px; border-radius: 20px; font-size: 0.85rem;
+                                               text-decoration: none; font-weight: 600; transition: all 0.3s;"
+                                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                                        Xem →
+                                    </router-link>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div v-else class="text-center">
+                    <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+                                padding: 20px 30px; border-radius: 16px; display: inline-block;
+                                border: 1px solid rgba(255,255,255,0.3); color: #fff;">
+                        <i class="fa-solid fa-info-circle me-2"></i>
+                        Hiện chưa có tour nào gần <b>{{ currentCity }}</b>. Hãy thử tìm kiếm điểm đến khác!
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- LÝ DO CHỌN NHTRAVEL -->
@@ -244,10 +350,10 @@
             </div>
         </div>
 
-        <!-- Ảnh -->
+        <!-- Ảnh + Pagination -->
         <div class="row" data-animate="fade-in-up"
             style="opacity: 0; transform: translateY(30px); transition: all 0.8s ease;">
-            <template v-for="(value, index) in listTour" :key="index">
+            <template v-for="(value, index) in paginatedTours" :key="index">
                 <div class="col-lg-3 mb-4">
                     <div class="position-relative">
                         <div class="card h-100 shadow-sm"
@@ -328,6 +434,37 @@
             </template>
         </div>
 
+        <!-- PAGINATION -->
+        <div v-if="totalPages > 1" class="d-flex justify-content-center align-items-center mt-2 mb-4" data-animate="fade-in-up"
+             style="opacity: 0; transform: translateY(30px); transition: all 0.8s ease; gap: 8px;">
+            <button @click="prevPage" :disabled="currentPage === 1"
+                class="btn rounded-circle d-flex align-items-center justify-content-center"
+                :style="{ width: '42px', height: '42px', border: '2px solid ' + (currentPage === 1 ? '#ddd' : '#0099ff'),
+                          color: currentPage === 1 ? '#ccc' : '#0099ff', background: 'white',
+                          transition: 'all 0.3s', cursor: currentPage === 1 ? 'not-allowed' : 'pointer' }">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button v-for="page in totalPages" :key="page" @click="goToPage(page)"
+                class="btn rounded-circle d-flex align-items-center justify-content-center"
+                :style="{ width: '42px', height: '42px', fontWeight: '700', fontSize: '0.95rem',
+                          border: page === currentPage ? 'none' : '2px solid #e0e0e0',
+                          background: page === currentPage ? 'linear-gradient(135deg, #0099ff, #0077cc)' : 'white',
+                          color: page === currentPage ? 'white' : '#666',
+                          boxShadow: page === currentPage ? '0 4px 12px rgba(0, 153, 255, 0.35)' : 'none',
+                          transition: 'all 0.3s' }">
+                {{ page }}
+            </button>
+
+            <button @click="nextPage" :disabled="currentPage === totalPages"
+                class="btn rounded-circle d-flex align-items-center justify-content-center"
+                :style="{ width: '42px', height: '42px', border: '2px solid ' + (currentPage === totalPages ? '#ddd' : '#0099ff'),
+                          color: currentPage === totalPages ? '#ccc' : '#0099ff', background: 'white',
+                          transition: 'all 0.3s', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer' }">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
         <!-- TRẢI NGHIỆM SẮC XUÂN VIỆT NAM -->
         <div class="position-relative text-center mt-5" data-animate="fade-in-up"
             style="opacity: 0; transform: translateY(30px); transition: all 0.8s ease;">
@@ -350,7 +487,7 @@
                     </div>
                     <div class="col-lg-5" style="margin-top: 10rem;">
                         <video autoplay loop muted playsinline preload="auto"
-                            poster="../../../assets/images/homecustomer/flower.jpg"
+                            poster="../../../assets/images/homecustomer/Poster.png"
                             style="width: 600px; height: 300px; object-fit: contain;">
                             <source src="../../../assets/images/homecustomer/flower.mp4" type="video/mp4">
                             Trình duyệt của bạn không hỗ trợ video.
@@ -451,11 +588,14 @@
 </template>
 <script>
 import axios from 'axios'
-export default {
+import * as bootstrap from "bootstrap";
 
+export default {
     data() {
         return {
             listTour: [],
+            currentPage: 1,
+            toursPerPage: 4,
             danhGiaList: [
                 { id: 1, id_tour: 1, diem: 5, binh_luan: "Chuyến đi Nha Trang thật sự tuyệt vời. Hướng dẫn viên rất nhiệt tình, vui vẻ và luôn tạo không khí thoải mái cho đoàn. Các điểm tham quan được sắp xếp hợp lý, giúp mọi người vừa được trải nghiệm biển đảo, vừa có thời gian nghỉ ngơi chụp ảnh." },
                 { id: 2, id_tour: 1, diem: 4, binh_luan: "Lịch trình được bố trí khá hợp lý, đi từ sáng đến chiều nhưng không quá mệt. Tôi thích nhất là được tham gia các hoạt động trải nghiệm như lặn ngắm san hô và đi thuyền." },
@@ -472,12 +612,26 @@ export default {
             listBaiViet: [],
             diaDiem: "",
             ngayDi: "",
-            nganSach: "", // Ví dụ: 1 = <5tr, 2 = 5–10tr, 3 = >10tr
+            nganSach: "",
             searchText: "",
             errors: {
                 diaDiem: "",
-            }
+            },
+            // Location Suggestion Data
+            currentCity: null,
+            suggestedTours: [],
+            isLoadingLocation: false,
+            currentLocationStatus: "",
 
+        }
+    },
+    computed: {
+        totalPages() {
+            return Math.ceil(this.listTour.length / this.toursPerPage);
+        },
+        paginatedTours() {
+            const start = (this.currentPage - 1) * this.toursPerPage;
+            return this.listTour.slice(start, start + this.toursPerPage);
         }
     },
     mounted() {
@@ -490,6 +644,38 @@ export default {
         }, 500); // có thể chỉnh về 300 nếu thấy mượt
     },
     methods: {
+        initFadeInAnimation() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                        observer.unobserve(entry.target); // Chỉ trigger 1 lần
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            const targets = document.querySelectorAll('[data-animate="fade-in-up"]');
+            targets.forEach(el => observer.observe(el));
+        },
+        // Pagination methods
+        goToPage(page) {
+            this.currentPage = page;
+            this.$nextTick(() => this.initFadeInAnimation());
+        },
+        prevPage() {
+            if (this.currentPage > 1) this.goToPage(this.currentPage - 1);
+        },
+        nextPage() {
+            if (this.currentPage < this.totalPages) this.goToPage(this.currentPage + 1);
+        },
+        nextSlide() {
+            const carouselEl = document.getElementById('carouselVideo');
+            if (carouselEl) {
+                const bsCarousel = bootstrap.Carousel.getOrCreateInstance(carouselEl);
+                bsCarousel.next();
+            }
+        },
         formatVND(number) {
             return new Intl.NumberFormat('vi-VI', { style: 'currency', currency: 'VND' }).format(number,);
         },
@@ -497,7 +683,7 @@ export default {
             return new Date(date).toLocaleDateString('vi-VI');
         },
         loadData() {
-            axios.get('http://127.0.0.1:8000/api/home-page')
+            axios.get('/home-page')
                 .then((res) => {
                     this.listTour = res.data.data_tour.map(tour => {
                         return {
@@ -528,7 +714,7 @@ export default {
             this.$router.push({ path: "/tour-all", query });
         },
         getDanhGia() {
-            axios.get("http://127.0.0.1:8000/api/danh-gia")
+            axios.get("/danh-gia")
                 .then(res => {
                     this.danhGiaList = res.data.map(item => {
                         return {
@@ -538,22 +724,73 @@ export default {
                         }
                     });
                 });
+
         },
-        initFadeInAnimation() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                        observer.unobserve(entry.target); // Chỉ trigger 1 lần
+        detectLocation() {
+            if (!navigator.geolocation) {
+                alert("Trình duyệt không hỗ trợ định vị!");
+                return;
+            }
+            this.isLoadingLocation = true;
+            this.currentLocationStatus = "Đang xác định tọa độ...";
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    this.fetchCityName(lat, lon);
+                },
+                (error) => {
+                    this.isLoadingLocation = false;
+                    alert("Không thể lấy vị trí: " + error.message);
+                }
+            );
+        },
+        fetchCityName(lat, lon) {
+            this.currentLocationStatus = "Đang tìm tên thành phố...";
+            // Sử dụng Nominatim OpenStreetMap (Free)
+            const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+            
+            axios.get(url)
+                .then(res => {
+                    const address = res.data.address;
+                    let city = address.city || address.province || address.state || address.town;
+                    if (city) {
+                        city = city.replace(/Thành phố /i, "").replace(/Tỉnh /i, "").trim();
+                        this.currentCity = city;
+                        this.fetchSuggestedTours(city);
+                    } else {
+                        this.isLoadingLocation = false;
+                        alert("Không xác định được tên thành phố!");
                     }
+                })
+                .catch(err => {
+                    console.error(err);
+                    this.isLoadingLocation = false;
+                    this.currentLocationStatus = "Lỗi khi lấy tên địa điểm.";
                 });
-            }, { threshold: 0.1 });
-
-            const targets = document.querySelectorAll('[data-animate="fade-in-up"]');
-            targets.forEach(el => observer.observe(el));
+        },
+        fetchSuggestedTours(city) {
+            this.currentLocationStatus = `Đang tìm tour gần ${city}...`;
+            axios.get('/tour-suggest', {
+                params: { location: city }
+            })
+            .then(res => {
+                this.suggestedTours = res.data.map(tour => ({
+                     ...tour,
+                     url: (tour.anh && tour.anh.length > 0) ? tour.anh[0].url : 'https://via.placeholder.com/300'
+                }));
+            })
+            .finally(() => {
+                this.isLoadingLocation = false; 
+            });
         }
-
     }
 }
 </script>
+<style>
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</style>

@@ -514,7 +514,7 @@ export default {
         },
         getData() {
             axios
-                .get('http://127.0.0.1:8000/api/admin/binh-luan/get-data', {
+                .get('/admin/binh-luan/get-data', {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                     }
@@ -545,7 +545,7 @@ export default {
                 });
         },
         PhanHoi() {
-            axios.post('http://127.0.0.1:8000/api/admin/binh-luan/phan-hoi', {
+            axios.post('/admin/binh-luan/phan-hoi', {
                 id: this.chiTiet.id,
                 phan_hoi: this.chiTiet.phan_hoi,
             }, {
@@ -574,7 +574,7 @@ export default {
                 });
         },
         xoa() {
-            axios.post('http://127.0.0.1:8000/api/admin/binh-luan/delete',
+            axios.post('/admin/binh-luan/delete',
                 this.delete_binh_luan, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")

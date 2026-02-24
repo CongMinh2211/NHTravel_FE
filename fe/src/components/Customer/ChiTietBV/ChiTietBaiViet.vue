@@ -20,7 +20,7 @@
                             
                             <div style="display: flex; align-items: center;">
                                 <span style="margin-right: 0.8rem; font-weight: 600; color: #333;">Chia sẻ bài viết:</span>
-                                <a href="https://www.facebook.com/thuynhi.1205" title="Chia sẻ Facebook"
+                                <a href="https://www.facebook.com/yuu.votri" title="Chia sẻ Facebook"
                                     style="display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background-color: #3b5998; color: white; margin-right: 0.5rem; width: 35px; height: 35px; font-size: 1.1rem; transition: transform 0.2s;"
                                     onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
                                     <i class="fa-brands fa-facebook-f"></i>
@@ -142,7 +142,7 @@ export default {
         },
 
         layChiTietBaiViet(id) {
-            axios.get(`http://127.0.0.1:8000/api/customer/bai-viet/${id}`)
+            axios.get(`/customer/bai-viet/${id}`)
                 .then(res => {
                     this.chi_tiet_bai_viet = res.data.data;
                 })
@@ -152,7 +152,7 @@ export default {
         },
 
         layBaiVietLienQuan(id) {
-            axios.get(`http://127.0.0.1:8000/api/customer/bai-viet/${id}/related`)
+            axios.get(`/customer/bai-viet/${id}/related`)
                 .then(res => {
                     this.related_posts = res.data.data;
                 })

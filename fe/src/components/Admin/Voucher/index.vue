@@ -485,7 +485,7 @@ export default {
   methods: {
 
     timKiem() {
-      axios.post('http://127.0.0.1:8000/api/admin/ma-giam-gia/tim-kiem', this.tim_kiem)
+      axios.post('/admin/ma-giam-gia/tim-kiem', this.tim_kiem)
         .then((res) => {
           this.list_voucher = res.data.data;
         });
@@ -497,7 +497,7 @@ export default {
 
     getVoucher() {
       axios
-        .get('http://127.0.0.1:8000/api/admin/ma-giam-gia/get-data', {
+        .get('/admin/ma-giam-gia/get-data', {
           headers: {
             Authorization: 'Bearer ' + localStorage.getItem("auth_token")
           }
@@ -560,7 +560,7 @@ export default {
       if (!this.validateVoucher(this.create_voucher)) return;
 
       axios
-        .post('http://127.0.0.1:8000/api/admin/ma-giam-gia/add-data', this.create_voucher, {
+        .post('/admin/ma-giam-gia/add-data', this.create_voucher, {
           headers: {
             Authorization: 'Bearer ' + localStorage.getItem("auth_token")
           }
@@ -597,7 +597,7 @@ export default {
       if (!this.validateVoucher(this.edit_voucher)) return;
 
       axios
-        .post("http://127.0.0.1:8000/api/admin/ma-giam-gia/update", this.edit_voucher, {
+        .post("/admin/ma-giam-gia/update", this.edit_voucher, {
           headers: {
             Authorization: 'Bearer ' + localStorage.getItem("auth_token")
           }
@@ -619,7 +619,7 @@ export default {
 
     xoaVoucher() {
       axios
-        .post("http://127.0.0.1:8000/api/admin/ma-giam-gia/delete", { id: this.del_voucher.id }, {
+        .post("/admin/ma-giam-gia/delete", { id: this.del_voucher.id }, {
           headers: {
             Authorization: 'Bearer ' + localStorage.getItem("auth_token")
           }

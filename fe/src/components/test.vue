@@ -442,7 +442,7 @@ export default {
         },
         loadDoanhThuTheoNgay() {
             axios
-                .get("http://localhost:8000/api/admin/doanh-thu-ngay", {
+                .get("/admin/doanh-thu-ngay", {
                     headers: {
                         Authorization: "Bearer " + localStorage.getItem("auth_token")
                     }
@@ -462,7 +462,7 @@ export default {
         },
         loadTongTourHoatDong() {
             axios
-                .get("http://localhost:8000/api/admin/dashboard", {
+                .get("/admin/dashboard", {
                     headers: {
                         Authorization: "Bearer " + localStorage.getItem("auth_token")
                     }
@@ -478,7 +478,7 @@ export default {
                 });
         },
         thongKeDoanhThu() {
-            axios.get("http://localhost:8000/api/admin/thong-ke-doanh-thu", {
+            axios.get("/admin/thong-ke-doanh-thu", {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then((res) => {

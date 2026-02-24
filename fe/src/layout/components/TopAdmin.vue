@@ -76,7 +76,7 @@ export default {
             const token = localStorage.getItem("auth_token");
             if (!token) return;
 
-            axios.get("http://127.0.0.1:8000/api/check-token", {
+            axios.get("/check-token", {
                 headers: { Authorization: "Bearer " + token }
             }).then(res => {
                 if (res.data.status) {
@@ -98,7 +98,7 @@ export default {
             const token = localStorage.getItem("auth_token");
             if (!token) return;
 
-            axios.post("http://127.0.0.1:8000/api/dang-xuat", {}, {
+            axios.post("/dang-xuat", {}, {
                 headers: { Authorization: "Bearer " + token }
             }).finally(() => {
                 localStorage.removeItem("auth_token");

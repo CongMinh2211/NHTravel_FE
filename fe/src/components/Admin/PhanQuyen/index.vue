@@ -290,7 +290,7 @@ export default {
     },
     methods: {
         timKiem() {
-            axios.post('http://127.0.0.1:8000/api/admin/chuc-vu/tim-kiem', this.tim_kiem, {
+            axios.post('/admin/chuc-vu/tim-kiem', this.tim_kiem, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -306,7 +306,7 @@ export default {
                 });
         },
         layDataChucVu() {
-            axios.get('http://127.0.0.1:8000/api/admin/chuc-vu/get-data', {
+            axios.get('/admin/chuc-vu/get-data', {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -322,7 +322,7 @@ export default {
                 });
         },
         layDataChucNang() {
-            axios.get('http://127.0.0.1:8000/api/admin/phan-quyen/chuc-nang/get-data', {
+            axios.get('/admin/phan-quyen/chuc-nang/get-data', {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -338,7 +338,7 @@ export default {
                 });
         },
         taoChucVu() {
-            axios.post('http://127.0.0.1:8000/api/admin/chuc-vu/add-data', this.create_chuc_vu, {
+            axios.post('/admin/chuc-vu/add-data', this.create_chuc_vu, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -360,7 +360,7 @@ export default {
                 });
         },
         capNhatChucVu() {
-            axios.post('http://127.0.0.1:8000/api/admin/chuc-vu/update', this.update_chuc_vu, {
+            axios.post('/admin/chuc-vu/update', this.update_chuc_vu, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -381,7 +381,7 @@ export default {
                 });
         },
         xoaChucVu() {
-            axios.post('http://127.0.0.1:8000/api/admin/chuc-vu/delete', this.delete_chuc_vu, {
+            axios.post('/admin/chuc-vu/delete', this.delete_chuc_vu, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -402,7 +402,7 @@ export default {
                 });
         },
         doiTrangThai(payload) {
-            axios.post('http://127.0.0.1:8000/api/admin/chuc-vu/change-status', payload, {
+            axios.post('/admin/chuc-vu/change-status', payload, {
                 headers: {
                     Authorization: 'Bearer ' + localStorage.getItem("auth_token")
                 }
@@ -423,7 +423,7 @@ export default {
                 });
         },
         capQuyen(id_chuc_nang) {
-            axios.post('http://127.0.0.1:8000/api/admin/phan-quyen/chi-tiet-phan-quyen/add-data', {
+            axios.post('/admin/phan-quyen/chi-tiet-phan-quyen/add-data', {
                 id_chuc_vu: this.chon_chuc_vu.id,
                 id_chuc_nang: id_chuc_nang
             }, {
@@ -440,7 +440,7 @@ export default {
         phanQuyen(value) {
             this.chon_chuc_vu = value;
 
-            axios.post('http://127.0.0.1:8000/api/admin/phan-quyen/chi-tiet-phan-quyen/get-data', {
+            axios.post('/admin/phan-quyen/chi-tiet-phan-quyen/get-data', {
                 id_chuc_vu: value.id
             }, {
                 headers: {
@@ -454,7 +454,7 @@ export default {
 
 
         xoaQuyen(item) {
-            axios.post('http://127.0.0.1:8000/api/admin/phan-quyen/chi-tiet-phan-quyen/delete', {
+            axios.post('/admin/phan-quyen/chi-tiet-phan-quyen/delete', {
                 id: item.id
             }, {
                 headers: {

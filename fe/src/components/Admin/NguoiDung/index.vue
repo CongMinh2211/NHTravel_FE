@@ -537,14 +537,14 @@ export default {
     },
     methods: {
         layDataChucVu() {
-            axios.get('http://127.0.0.1:8000/api/admin/chuc-vu/get-data')
+            axios.get('/admin/chuc-vu/get-data')
                 .then(res => {
                     this.list_chuc_vu = res.data.data;
                     //this.$toast.error("Lấy danh sách chức vụ thức bại.");
                 })
         },
         getNguoiDung() {
-            axios.get("http://localhost:8000/api/admin/nguoi-dung", {
+            axios.get("/admin/nguoi-dung", {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {
@@ -556,7 +556,7 @@ export default {
                 });
         },
         themNguoiDung() {
-            axios.post("http://localhost:8000/api/admin/nguoi-dung/them-nguoi-dung", this.them_nguoi_dung, {
+            axios.post("/admin/nguoi-dung/them-nguoi-dung", this.them_nguoi_dung, {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {
@@ -565,15 +565,16 @@ export default {
                         this.getNguoiDung(); // load lại danh sách
                         this.them_nguoi_dung = {};  // reset form
                     } else {
-                        this.$toast.error("Thêm người dùng thất bại.");
+                        this.$toast.error(res.data.message || "Thêm người dùng thất bại.");
                     }
                 })
-                .catch((res) => {
-                    this.$toast.error("Thêm người dùng thất bại.");
+                .catch((err) => {
+                    const msg = err.response?.data?.message || "Thêm người dùng thất bại.";
+                    this.$toast.error(msg);
                 });
         },
         chiTietNguoiDung() {
-            axios.get("http://localhost:8000/api/admin/nguoi-dung/chi-tiet-nguoi-dung", {
+            axios.get("/admin/nguoi-dung/chi-tiet-nguoi-dung", {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {
@@ -589,7 +590,7 @@ export default {
         },
         xoaNguoiDung() {
             axios
-                .post('http://127.0.0.1:8000/api/admin/nguoi-dung/xoa-nguoi-dung', this.xoa_nguoi_dung, {
+                .post('/admin/nguoi-dung/xoa-nguoi-dung', this.xoa_nguoi_dung, {
                     headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
                 })
                 .then(res => {
@@ -605,22 +606,25 @@ export default {
                 });
         },
         suaNguoiDung() {
-            axios.post("http://localhost:8000/api/admin/nguoi-dung/sua-nguoi-dung", this.sua_nguoi_dung, {
+            axios.post("/admin/nguoi-dung/sua-nguoi-dung", this.sua_nguoi_dung, {
                 headers: { Authorization: "Bearer " + localStorage.getItem("auth_token") }
             })
                 .then(res => {
                     if (res.data.status) {
                         this.$toast.success(res.data.message);
                         this.getNguoiDung(); // load lại danh sách
+                    } else {
+                        this.$toast.error(res.data.message || "Cập nhật thất bại.");
                     }
                 })
-                .catch((res) => {
-                    this.$toast.error("Thêm người dùng thất bại.");
+                .catch((err) => {
+                    const msg = err.response?.data?.message || "Cập nhật thất bại.";
+                    this.$toast.error(msg);
                 });
         },
 
         timKiem() {
-            axios.post('http://127.0.0.1:8000/api/admin/nguoi-dung/tim-kiem', this.tim_kiem)
+            axios.post('/admin/nguoi-dung/tim-kiem', this.tim_kiem)
                 .then((res) => {
                     this.list_nguoi_dung = res.data.data;
                 });

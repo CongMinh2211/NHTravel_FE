@@ -369,7 +369,7 @@ export default {
             }
 
             axios.get(
-                "http://127.0.0.1:8000/api/customer/ls-dat-tour/list",
+                "/customer/ls-dat-tour/list",
                 {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem("auth_token")
@@ -398,7 +398,7 @@ export default {
             }
 
             // Gửi request tạo link
-            axios.post("http://127.0.0.1:8000/api/payment/vnpay/create", {
+            axios.post("/payment/vnpay/create", {
                 ma_don_hang: this.don_hang_chon.ma_don_hang,
                 id_dat_tour: this.don_hang_chon.id, // Backend sẽ dùng cái này làm TxnRef
                 total_vnpay: this.don_hang_chon.tien_thuc_nhan

@@ -24,6 +24,10 @@
                     <p class="text-muted mb-4">
                         Đơn hàng <b class="text-primary">{{ maDonHang }}</b> đã được xác nhận.
                     </p>
+                    <div class="alert alert-info py-2 mb-4">
+                        <i class="fa-solid fa-circle-info me-2"></i>
+                        Hệ thống sẽ tự động chuyển hướng sau <b>{{ redirectCountdown }}</b> giây...
+                    </div>
                     <router-link to="/lich-su-don-hang" class="btn btn-success btn-lg px-4">
                         <i class="fa-solid fa-clipboard-list me-2"></i>
                         Xem đơn hàng
@@ -138,6 +142,8 @@ export default {
             timeRemaining: 15 * 60, // 15 phút
             pollingInterval: null,
             timerInterval: null,
+            redirectCountdown: 3,
+            redirectInterval: null,
         };
     },
 
@@ -177,6 +183,7 @@ export default {
         // Dọn dẹp intervals
         if (this.pollingInterval) clearInterval(this.pollingInterval);
         if (this.timerInterval) clearInterval(this.timerInterval);
+        if (this.redirectInterval) clearInterval(this.redirectInterval);
     },
 
     methods: {
@@ -252,6 +259,9 @@ export default {
                     localStorage.removeItem('pending_order');
                     window.dispatchEvent(new Event('payment-completed'));
                     this.$toast.success('Thanh toán thành công!');
+                    
+                    // Bắt đầu đếm ngược chuyển trang
+                    this.startRedirectTimer();
                 }
             } catch (error) {
                 console.error('Check status error:', error);
@@ -275,6 +285,17 @@ export default {
             }).catch(() => {
                 this.$toast.error('Không thể copy');
             });
+        },
+
+        startRedirectTimer() {
+            this.redirectInterval = setInterval(() => {
+                if (this.redirectCountdown > 1) {
+                    this.redirectCountdown--;
+                } else {
+                    clearInterval(this.redirectInterval);
+                    this.$router.push('/lich-su-don-hang');
+                }
+            }, 1000);
         }
     }
 };

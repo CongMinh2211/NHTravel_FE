@@ -541,19 +541,14 @@
             <!-- Bảng bên phải chọn ngày khởi hành -->
             <div class="col-lg-4">
                 <div style="position: sticky; top: 100px;">
-                    <div class="card">
-                        <div class="card-body">
-                            <i class="fa-solid fa-ticket me-2"></i>Mã tour: <b>{{ chi_tiet_tour.ma_tour }}</b>
-                            <br>
-                            <div class="mt-2"><i class="fa-solid fa-calendar-days me-2"></i>Ngày khởi hành:
-                                <a href="#scrollspyHeading1">
-                                    <!-- Nút chọn ngày -->
-                                    <button class="btn btn-outline-primary ms-2"
-                                        style="border-radius: 100px; font-size: smaller;"><b>{{
-                                            formatDate(chi_tiet_tour.ngay_di)
-                                            }}</b></button>
-                                </a>
-                            </div>
+                    <!-- DateSelector Component -->
+                    <div class="card mb-3">
+                        <div class="card-body p-0">
+                            <DateSelector 
+                                :tourDates="tourDates" 
+                                :defaultDate="formatDate(chi_tiet_tour.ngay_di)"
+                                @date-selected="handleDateSelected"
+                            />
                         </div>
                     </div>
 
@@ -610,7 +605,12 @@
 </template>
 <script>
 import axios from 'axios';
+import DateSelector from '../DateSelector/DateSelector.vue';
+
 export default {
+    components: {
+        DateSelector
+    },
     props: ["id_tour"],
     data() {
         return {
@@ -632,6 +632,7 @@ export default {
             showSchedule: false, // ẩn mặc định
             selectedDate: '',
             allExpanded: false,
+            tourDates: [], // Danh sách các ngày khởi hành
         };
     },
     mounted() {
@@ -647,7 +648,10 @@ export default {
         },
         formatDate(date) {
             const d = new Date(date);
-            return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
         },
         formatVND(number) {
             return new Intl.NumberFormat("vi-VI", { style: "currency", currency: "VND" }).format(number);
@@ -674,7 +678,7 @@ export default {
             var payload = {
                 id: this.id_tour
             }
-            axios.post('http://127.0.0.1:8000/api/customer/chi-tiet-tour/get-data', payload)
+            axios.post('/customer/chi-tiet-tour/get-data', payload)
                 .then((res) => {
                     if (res.data.status) {
                         this.chi_tiet_tour = res.data.data_tour;
@@ -686,8 +690,19 @@ export default {
                         this.selectedDate = this.formatDate(this.chi_tiet_tour.ngay_di);
                         this.showSchedule = true;
 
-
-
+                        // Tạo dữ liệu tourDates cho DateSelector giả lập nhiều ngày cho đẹp
+                        this.tourDates = [];
+                        const startDate = new Date(this.chi_tiet_tour.ngay_di);
+                        for (let i = 0; i < 5; i++) {
+                            const d = new Date(startDate);
+                            d.setDate(startDate.getDate() + (i * 7)); // Mỗi 7 ngày có 1 chuyến
+                            this.tourDates.push({
+                                ngay_di: d.toISOString().split('T')[0],
+                                gia_nguoi_lon: this.chi_tiet_tour.gia_nguoi_lon,
+                                gia_tre_em: this.chi_tiet_tour.gia_tre_em,
+                                so_cho_con: this.chi_tiet_tour.so_cho_con || 0
+                            });
+                        }
                     } else {
                         this.$toast.error(res.data.message);
                     }
@@ -717,7 +732,7 @@ export default {
 
 
 
-            axios.post("http://127.0.0.1:8000/api/customer/chi-tiet-tour/binh-luan",
+            axios.post("/customer/chi-tiet-tour/binh-luan",
                 form,
                 {
                     headers: {
@@ -742,7 +757,7 @@ export default {
         },
         dataBinhLuan() {
             axios
-                .get("http://127.0.0.1:8000/api/customer/chi-tiet-tour/binh-luan/get-data/" + this.id_tour)
+                .get("/customer/chi-tiet-tour/binh-luan/get-data/" + this.id_tour)
                 .then((res) => {
                     this.list_binh_luan = res.data.data;
                 });
@@ -764,14 +779,34 @@ export default {
         },
         getDiemTrungBinh() {
             axios
-                .get("http://127.0.0.1:8000/api/customer/chi-tiet-tour/diem-trung-binh/" + this.id_tour)
+                .get("/customer/chi-tiet-tour/diem-trung-binh/" + this.id_tour)
                 .then((res) => {
                     if (res.data.status) {
                         this.diemTrungBinh = res.data.diem_tb;
                         this.soLuongDanhGia = res.data.so_luong;
                     }
                 });
-        }
+        },
+        // Xử lý khi chọn ngày từ DateSelector
+        handleDateSelected(event) {
+            this.selectedDate = event.date;
+            this.showSchedule = true;
+            // Cập nhật thông tin tour với ngày đã chọn
+            if (event.date) {
+                const selectedTourDate = this.tourDates.find(d => {
+                    const date = new Date(d.ngay_di);
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    return `${day}/${month}/${year}` === event.date;
+                });
+                if (selectedTourDate) {
+                    this.chi_tiet_tour.gia_nguoi_lon = selectedTourDate.gia_nguoi_lon;
+                    this.chi_tiet_tour.gia_tre_em = selectedTourDate.gia_tre_em;
+                    this.chi_tiet_tour.so_cho_con = selectedTourDate.so_cho_con;
+                }
+            }
+        },
 
     }
 };

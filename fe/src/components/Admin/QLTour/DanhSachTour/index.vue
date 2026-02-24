@@ -522,7 +522,7 @@ export default {
 
     methods: {
         getListDanhMuc() {
-            axios.get('http://127.0.0.1:8000/api/admin/danh-muc-tour/get-data')
+            axios.get('/admin/danh-muc-tour/get-data')
                 .then(res => {
                     this.danhMuc = res.data.data;
                 });
@@ -532,7 +532,7 @@ export default {
 
 
             axios
-                .get("http://127.0.0.1:8000/api/admin/tour/get-data", {
+                .get("/admin/tour/get-data", {
                     headers: {
                         Authorization: "Bearer " + localStorage.getItem("auth_token")
                     }
@@ -555,7 +555,7 @@ export default {
         },
 
         getTourDetail(id) {
-            axios.get(`http://127.0.0.1:8000/api/admin/tour/${id}`, {
+            axios.get(`/admin/tour/${id}`, {
                 headers: {
                     Authorization: "Bearer " + localStorage.getItem("auth_token")
                 }
@@ -573,7 +573,7 @@ export default {
         openEdit(id) {
             this.showEditModal = true;
             axios
-                .get(`http://127.0.0.1:8000/api/admin/tour/${id}`, {
+                .get(`/admin/tour/${id}`, {
                     headers: {
                         Authorization: "Bearer " + localStorage.getItem("auth_token")
                     }
@@ -592,7 +592,7 @@ export default {
 
         capNhatTour(id) {
             axios.post(
-                `http://127.0.0.1:8000/api/admin/tour/update/${id}`,
+                `/admin/tour/update/${id}`,
                 this.editTour,
                 {
                     headers: {
@@ -624,7 +624,7 @@ export default {
         },
         xoaTour(id) {
             axios.delete(
-                `http://127.0.0.1:8000/api/admin/tour/delete/${id}`,
+                `/admin/tour/delete/${id}`,
                 {
                     headers: {
                         Authorization: "Bearer " + localStorage.getItem("auth_token"),

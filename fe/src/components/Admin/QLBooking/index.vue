@@ -268,7 +268,7 @@ export default {
             this.list_dsBooking[itemIndex].trang_thai = newStatus;
 
             // Gửi API POST để cập nhật trạng thái
-            axios.post('http://127.0.0.1:8000/api/admin/dat-tour/change-status', {
+            axios.post('/admin/dat-tour/change-status', {
                 id: id,
                 trang_thai: newStatus
             })
@@ -293,7 +293,7 @@ export default {
         // LẤY DANH SÁCH
         getDanhSach() {
             this.loading = true; // Bắt đầu tải
-            axios.get('http://127.0.0.1:8000/api/admin/chi-tiet-dat-tour/get-data')
+            axios.get('/admin/chi-tiet-dat-tour/get-data')
                 .then(res => {
                     this.list_dsBooking = res.data.data;
                 })
@@ -309,7 +309,7 @@ export default {
 
         // XOÁ
         xoaDanhSach() {
-            axios.post('http://127.0.0.1:8000/api/admin/dat-tour/delete',
+            axios.post('/admin/dat-tour/delete',
                 this.delete_booking
             )
                 .then(res => {
@@ -320,7 +320,7 @@ export default {
 
         locDanhSach() {
             this.loading = true; // Bắt đầu tải
-            axios.post("http://127.0.0.1:8000/api/admin/dat-tour/loc-thong-tin", {
+            axios.post("/admin/dat-tour/loc-thong-tin", {
                 from_date: this.search.from_date || null,
                 to_date: this.search.to_date || null
             })

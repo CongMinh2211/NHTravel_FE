@@ -155,7 +155,7 @@ export default {
     },
     methods: {
         getListDanhMuc() {
-            axios.get("http://127.0.0.1:8000/api/admin/danh-muc-tour/get-data")
+            axios.get("/admin/danh-muc-tour/get-data")
                 .then(res => {
                     this.danhMuc = res.data.data;
                 });
@@ -192,7 +192,7 @@ export default {
                 ...this.form
             };
 
-            axios.post("http://127.0.0.1:8000/api/admin/them-tour", payload, {
+            axios.post("/admin/them-tour", payload, {
                 headers: {
                     Authorization: "Bearer " + localStorage.getItem("auth_token")
                 }

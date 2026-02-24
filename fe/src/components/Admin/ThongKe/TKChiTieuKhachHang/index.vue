@@ -92,7 +92,7 @@ export default {
         },
         thongKe() {
             axios
-                .post('http://127.0.0.1:8000/api/admin/thong-ke/khach-hang-chi-tieu', this.search, {
+                .post('/admin/thong-ke/khach-hang-chi-tieu', this.search, {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem("key_admin")
                     }

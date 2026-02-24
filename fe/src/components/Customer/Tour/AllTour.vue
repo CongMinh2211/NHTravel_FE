@@ -469,7 +469,7 @@ export default {
             return new Date(date).toLocaleDateString('vi-VI');
         },
         getDanhSachTour() {
-            axios.get("http://127.0.0.1:8000/api/customer/tour/get-data")
+            axios.get("/customer/tour/get-data")
                 .then(res => {
                     this.allTours = res.data.data.filter(tour => tour.so_cho_con > 0);
                     console.log("Dữ liệu 1 tour mẫu:", this.allTours[0]);
@@ -490,7 +490,7 @@ export default {
             }
         },
         getDanhMuc() {
-            axios.get("http://127.0.0.1:8000/api/admin/danh-muc-tour/get-data")
+            axios.get("/admin/danh-muc-tour/get-data")
                 .then(res => {
                     this.danhMucs = res.data.data;
                     console.log("Danh mục nhận được:", this.danhMucs); // kiểm tra cấu trúc

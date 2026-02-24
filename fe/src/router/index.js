@@ -153,6 +153,7 @@ const routes = [
   },
   {
     path: "/lich-su-don-hang",
+    alias: "/lich-su-dat-tour",
     component: () => import("../components/Customer/LichSuDonHang/LSDH.vue"),
     meta: { layout: "customer" },
     props: true,
@@ -161,6 +162,13 @@ const routes = [
     path: "/vnpay_return",
     component: () => import("../components/Customer/ThanhToan/index.vue"),
     meta: { layout: "customer" },
+  },
+  {
+    path: "/thanh-toan-sepay/:ma_don_hang",
+    name: "SepayPayment",
+    component: () => import("../components/Customer/ThanhToan/SepayPayment.vue"),
+    meta: { layout: "customer" },
+    props: true,
   },
   {
     path: "/chinh-sach-bao-mat",
@@ -173,6 +181,12 @@ const routes = [
     component: () =>
       import("../components/Customer/DieuKhoanSD/DieuKhoanSD.vue"),
     meta: { layout: "customer" },
+  },
+  {
+    path: "/thong-tin-ca-nhan",
+    component: () => import("../components/Customer/Profile/index.vue"),
+    meta: { layout: "customer" },
+    beforeEnter: checkToken,
   },
   {
     path: "/dang-ky",

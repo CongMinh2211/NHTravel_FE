@@ -86,7 +86,7 @@ export default {
     methods: {
         thongKe() {
             axios
-                .post('http://127.0.0.1:8000/api/admin/thong-ke/ap-voucher', this.search, {
+                .post('/admin/thong-ke/ap-voucher', this.search, {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem("key_admin")
                     }

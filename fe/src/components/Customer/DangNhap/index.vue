@@ -71,8 +71,9 @@ export default {
   mounted() {
     // Nếu đã có token thì redirect luôn
     const token = localStorage.getItem('auth_token');
-    if (token) {
-      //const user = JSON.parse(localStorage.getItem("auth_user") || "{}");
+    const userStr = localStorage.getItem("auth_user");
+    if (token && userStr) {
+      const user = JSON.parse(userStr);
       const role = user.id_chuc_vu;
       if (role == 1) this.$router.replace("/admin");
       else if (role == 2) this.$router.replace("/staff");
@@ -83,7 +84,7 @@ export default {
 
     dangNhap() {
       axios
-        .post("http://127.0.0.1:8000/api/dang-nhap", this.thong_tin_dang_nhap)
+        .post("/dang-nhap", this.thong_tin_dang_nhap)
         .then((res) => {
           // Đăng nhập sai
           if (!res.data.status) {
@@ -100,7 +101,7 @@ export default {
 
           // LƯU TOKEN VÀ USER
           localStorage.setItem("auth_token", res.data.token);
-          //localStorage.setItem("auth_user", JSON.stringify(res.data.user));
+          localStorage.setItem("auth_user", JSON.stringify(res.data.user));
 
           this.$toast.success("Đăng nhập thành công");
 

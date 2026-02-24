@@ -128,7 +128,7 @@ export default {
 
             //this.isLoading = true;
 
-            axios.post('http://127.0.0.1:8000/api/dang-ky', this.form_dang_ky)
+            axios.post('/dang-ky', this.form_dang_ky)
                 .then((res) => {
                     if (res.data.status) {
                         this.$toast.success(res.data.message);

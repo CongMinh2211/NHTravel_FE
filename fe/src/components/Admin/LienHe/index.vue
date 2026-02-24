@@ -280,7 +280,7 @@ export default {
     methods: {
         getData() {
             axios
-                .get('http://127.0.0.1:8000/api/admin/lien-he/get-data')
+                .get('/admin/lien-he/get-data')
                 .then((res) => {
                     this.contacts = res.data.data.map(item => {
                         return {
@@ -305,7 +305,7 @@ export default {
             this.chiTiet = item;
         },
         xoa() {
-            axios.post('http://127.0.0.1:8000/api/admin/lien-he/delete', this.delete_lien_he)
+            axios.post('/admin/lien-he/delete', this.delete_lien_he)
                 .then(res => {
                     if (res.data.status) {
                         this.getData(); // làm mới danh sách
@@ -322,7 +322,7 @@ export default {
                 });
         },
         xuLy() {
-            axios.post('http://127.0.0.1:8000/api/admin/lien-he/change-status', {
+            axios.post('/admin/lien-he/change-status', {
                 id: this.id_xu_ly,
                 trang_thai: this.trangThai,
             })
