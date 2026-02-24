@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql pdo_sqlite bcmath gd mbstring \
     && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite
+# Enable Apache modules
+RUN a2dismod mpm_event mpm_worker && a2enmod mpm_prefork rewrite
 
 # Set working directory
 WORKDIR /var/www/html
@@ -53,8 +53,11 @@ RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available
 ENV PORT=8080
 EXPOSE 8080
 
-# Make entrypoint script executable
-RUN chmod +x /var/www/html/entrypoint.sh
+# Convert line endings and make entrypoint executable
+RUN apt-get update && apt-get install -y dos2unix \
+    && dos2unix /var/www/html/entrypoint.sh \
+    && chmod +x /var/www/html/entrypoint.sh \
+    && rm -rf /var/lib/apt/lists/*
 
 # Start using entrypoint
-ENTRYPOINT ["/var/www/html/entrypoint.sh"]
+CMD ["/bin/bash", "/var/www/html/entrypoint.sh"]
