@@ -159,11 +159,6 @@ const routes = [
     props: true,
   },
   {
-    path: "/vnpay_return",
-    component: () => import("../components/Customer/ThanhToan/index.vue"),
-    meta: { layout: "customer" },
-  },
-  {
     path: "/thanh-toan-sepay/:ma_don_hang",
     name: "SepayPayment",
     component: () => import("../components/Customer/ThanhToan/SepayPayment.vue"),

@@ -327,12 +327,14 @@
                 </div>
 
                 <div class="modal-footer justify-content-center" style="border-top: none; padding-bottom: 25px;">
-                    <button class="btn btn-lg shadow" @click="thanhToanVNPAY"
-                        style="background-color: #28a745; color: white; border-radius: 50rem; font-weight: bold; transition: all 0.3s;"
+                    <router-link :to="{ name: 'SepayPayment', params: { ma_don_hang: don_hang_chon?.ma_don_hang }}" 
+                        class="btn btn-lg shadow"
+                        data-bs-dismiss="modal"
+                        style="background-color: #28a745; color: white; border-radius: 50rem; font-weight: bold; transition: all 0.3s; text-decoration: none; padding: 10px 30px;"
                         onmouseover="this.style.backgroundColor='#1e7e34'"
                         onmouseout="this.style.backgroundColor='#28a745'">
-                        <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Thanh toán VNPay
-                    </button>
+                        <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Thanh toán Ngay (Chuyển khoản)
+                    </router-link>
                 </div>
 
             </div>
@@ -391,36 +393,6 @@ export default {
         chonDonHang(value) {
             this.don_hang_chon = value;
         },
-        thanhToanVNPAY() {
-            if (!this.don_hang_chon) {
-                this.$toast.error("Không tìm thấy đơn hàng!");
-                return;
-            }
-
-            // Gửi request tạo link
-            axios.post("/payment/vnpay/create", {
-                ma_don_hang: this.don_hang_chon.ma_don_hang,
-                id_dat_tour: this.don_hang_chon.id, // Backend sẽ dùng cái này làm TxnRef
-                total_vnpay: this.don_hang_chon.tien_thuc_nhan
-            })
-                .then(res => {
-                    // --- SỬA Ở ĐÂY ---
-                    // Backend trả về: { code: '00', data: 'url...' }
-                    if (res.data.status == true) {
-                        // Chuyển hướng sang VNPAY
-                        window.location.href = res.data.payment_url;
-                    } else {
-                        this.$toast.error("Không tạo được liên kết thanh toán!");
-                    }
-                    // -----------------
-                })
-                .catch(err => {
-                    console.log(err);
-                    this.$toast.error("Lỗi khi tạo thanh toán!");
-                });
-        }
-
-
     },
 
 }
