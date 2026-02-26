@@ -188,9 +188,14 @@
                             </div>
                         </div>
                     </template>
-                    <div v-else class="p-4 text-center text-muted">
+                    <div v-else-if="isLoadingData" class="p-5 text-center text-muted">
+                        <i class="fa-solid fa-spinner fa-spin fa-3x mb-3 d-block opacity-25"></i>
+                        Đang lấy dữ liệu tour...
+                    </div>
+                    <div v-else class="p-5 text-center text-muted">
                         <i class="fa-regular fa-map fa-3x mb-3 d-block opacity-25"></i>
-                        Đang cập nhật địa danh...
+                        <p class="mb-1">Chưa có địa danh nào có tọa độ.</p>
+                        <small>Vui lòng cập nhật tọa độ tour trong Admin.</small>
                     </div>
                 </div>
             </div>
@@ -698,6 +703,7 @@ export default {
             userLat: null,
             userLon: null,
             weatherStore: {},
+            isLoadingData: true,
         }
     },
     computed: {
@@ -735,6 +741,16 @@ export default {
         paginatedTours() {
             const start = (this.currentPage - 1) * this.toursPerPage;
             return this.listTour.slice(start, start + this.toursPerPage);
+        }
+    },
+    watch: {
+        uniqueLocations: {
+            handler(newVal) {
+                if (newVal && newVal.length > 0) {
+                    this.fetchWeatherForSidebar();
+                }
+            },
+            immediate: false
         }
     },
     mounted() {
@@ -806,6 +822,9 @@ export default {
                         }
                     });
                 })
+                .finally(() => {
+                    this.isLoadingData = false;
+                });
         },
         submitSearch() {
             this.errors.diaDiem = ""; // reset lỗi
