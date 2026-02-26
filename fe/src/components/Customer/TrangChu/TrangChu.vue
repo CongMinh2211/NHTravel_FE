@@ -174,8 +174,16 @@
                                     <div style="font-weight: 700; color: #006ce4; font-size: 0.95rem;">{{ loc.dia_diem }}</div>
                                     <div style="font-size: 0.75rem; color: #666; margin-top: 2px;">{{ loc.description || 'Khám phá vẻ đẹp tại ' + loc.dia_diem }}</div>
                                 </div>
-                                <div v-if="loc.distance" class="badge rounded-pill bg-light text-dark border" style="font-size: 0.7rem; font-weight: 600; padding: 5px 10px;">
-                                    {{ loc.distance.toFixed(1) }} km
+                                <div class="d-flex align-items-center">
+                                    <div v-if="weatherStore[loc.dia_diem]" title="Thời tiết hiện tại" 
+                                         class="me-3 text-center d-flex align-items-center justify-content-center" 
+                                         style="background: #f0f7ff; padding: 4px 8px; border-radius: 8px; border: 1px solid #d0e7ff; min-width: 65px;">
+                                        <span style="font-size: 1.1rem; margin-right: 4px;">{{ weatherStore[loc.dia_diem].emoji }}</span>
+                                        <span style="font-weight: 800; color: #333; font-size: 0.85rem;">{{ weatherStore[loc.dia_diem].temp }}°</span>
+                                    </div>
+                                    <div v-if="loc.distance" class="badge rounded-pill bg-light text-dark border" style="font-size: 0.7rem; font-weight: 600; padding: 5px 10px;">
+                                        {{ loc.distance.toFixed(1) }} km
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -689,6 +697,7 @@ export default {
             userMarker: null,
             userLat: null,
             userLon: null,
+            weatherStore: {},
         }
     },
     computed: {
@@ -787,6 +796,9 @@ export default {
                     });
                     this.listBaiViet = res.data.data_bv;
                     
+                    // Fetch weather info for sidebar
+                    this.fetchWeatherForSidebar();
+
                     // Render interactive map with weather
                     this.$nextTick(() => {
                         if (typeof window.L !== 'undefined') {
@@ -918,6 +930,27 @@ export default {
             if (!this.map) return;
             this.map.flyTo([loc.latitude, loc.longitude], 12);
             // Search for marker and open popup logic could be added here if needed
+        },
+        fetchWeatherForSidebar() {
+            this.uniqueLocations.forEach(loc => {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current_weather=true`;
+                axios.get(url).then(res => {
+                    const weather = res.data.current_weather;
+                    let emoji = "☀️";
+                    if(weather.weathercode >= 1 && weather.weathercode <= 3) emoji = "⛅";
+                    if(weather.weathercode >= 51 && weather.weathercode <= 67) emoji = "🌧️";
+                    if(weather.weathercode >= 71) emoji = "❄️";
+                    if(weather.weathercode >= 80) emoji = "🌩️";
+
+                    this.weatherStore = {
+                        ...this.weatherStore,
+                        [loc.dia_diem]: {
+                            temp: weather.temperature,
+                            emoji: emoji
+                        }
+                    };
+                }).catch(err => console.log("Weather error for", loc.dia_diem, err));
+            });
         },
         initMap() {
             if (!this.listTour || this.listTour.length === 0) return;
