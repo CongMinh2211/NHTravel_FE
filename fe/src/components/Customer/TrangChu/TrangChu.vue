@@ -649,6 +649,7 @@ export default {
             isLoadingLocation: false,
             currentLocationStatus: "",
             map: null,
+            userMarker: null,
         }
     },
     computed: {
@@ -771,6 +772,25 @@ export default {
                 (position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
+                    
+                    // Update Map with User Location
+                    if (this.map) {
+                        const userPos = [lat, lon];
+                        if (this.userMarker) {
+                            this.userMarker.setLatLng(userPos);
+                        } else {
+                            const userIcon = window.L.divIcon({
+                                className: '',
+                                html: "<div style='background-color:#007bff; width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,123,255,0.8); animation: pulse 2s infinite;'></div>",
+                                iconSize: [24, 24],
+                                iconAnchor: [12, 12]
+                            });
+                            this.userMarker = window.L.marker(userPos, { icon: userIcon }).addTo(this.map)
+                                .bindPopup("<b>Vị trí của bạn</b>").openPopup();
+                        }
+                        this.map.flyTo(userPos, 10);
+                    }
+
                     this.fetchCityName(lat, lon);
                 },
                 (error) => {
@@ -825,7 +845,14 @@ export default {
                 this.map.remove();
             }
 
-            this.map = window.L.map('tourMap').setView([16.16667, 107.83333], 5);
+            this.map = window.L.map('tourMap', {
+                maxBounds: [
+                    [8.18, 102.14], // Southwest Vietnam
+                    [23.39, 109.46]  // Northeast Vietnam
+                ],
+                maxBoundsViscosity: 1.0,
+                minZoom: 5
+            }).setView([16.16667, 107.83333], 5);
 
             window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; OpenStreetMap contributors'
@@ -908,5 +935,10 @@ export default {
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
 }
 </style>
