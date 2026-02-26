@@ -3,8 +3,8 @@
     <router-view></router-view>
   </component>
 
-  <!-- Chatbot Component -->
-  <Chatbot />
+  <!-- Chatbot Component Bị Ẩn (Sử dụng Tawk.to thay thế) -->
+  <!-- <Chatbot /> -->
 
   <!-- Payment Countdown Bubble -->
   <PaymentBubble />
