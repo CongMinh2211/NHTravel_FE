@@ -127,28 +127,65 @@
     </div>
 
     <!-- INTERACTIVE TOUR DISCOVERY MAP -->
-    <div class="container mt-5 pt-3 mb-5" data-animate="fade-in-up" style="opacity: 0; transform: translateY(30px); transition: all 0.8s ease;">
-        <div class="text-center mb-4">
-            <h2 style="color: #ff5722; font-weight: 800; font-size: 2rem;">
-                <i class="fa-solid fa-map-location-dot me-2"></i>Bản đồ Khám Phá Touring
-            </h2>
-            <p style="color: #666; font-size: 1.05rem;">
-                Xem trực tiếp thời tiết và chọn điểm đến lý tưởng nhất cho chuyến đi của bạn trên bản đồ.
-            </p>
-        </div>
+    <div class="container mt-5 pt-3 mb-5" data-animate="fade-in-up" 
+         style="opacity: 0; transform: translateY(30px); transition: all 0.8s ease;">
         
-        <div class="row w-100 mx-auto justify-content-center">
-             <div class="col-12" style="position: relative;">
-                <div id="tourMap" style="height: 500px; width: 100%; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 2px solid #e2e8f0; position: relative; z-index: 1;"></div>
+        <!-- Header Bar -->
+        <div class="d-flex justify-content-between align-items-center px-4 py-2" 
+             style="background-color: #006ce4; border-radius: 12px 12px 0 0; color: white;">
+            <h5 class="mb-0" style="font-weight: 700; font-size: 1.1rem;">
+                <i class="fa-solid fa-earth-asia me-2"></i>Khám phá Địa danh Việt Nam
+            </h5>
+            <span v-if="userLat" style="font-size: 0.85rem; font-style: italic;">
+                <i class="fa-solid fa-check-circle me-1"></i>Đã tìm thấy vị trí của bạn!
+            </span>
+        </div>
+
+        <div class="row g-0" style="box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 2px solid #006ce4; border-top: none; border-radius: 0 0 16px 16px; overflow: hidden; background: white;">
+            <!-- Left: Map -->
+            <div class="col-lg-8" style="position: relative;">
+                <div id="tourMap" style="height: 520px; width: 100%; border-right: 1px solid #dee2e6; z-index: 1;"></div>
                 
-                <div style="position: absolute; bottom: 20px; right: 20px; z-index: 500; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                    <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;"><i class="fa-solid fa-circle-info me-1"></i> Chú giải:</div>
-                    <div style="font-size: 0.8rem; display: flex; align-items: center;">
-                        <span style="background-color:#ff5722; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.5); display: inline-block; margin-right: 8px;"></span> 
-                        <span>Điểm đến có Tour</span>
+                <!-- Legend Overlay -->
+                <div style="position: absolute; bottom: 15px; left: 15px; z-index: 500; background: rgba(255,255,255,0.9); padding: 8px 12px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid #eee;">
+                    <div style="font-size: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                        <span style="background-color:#ff5722; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; display: inline-block;"></span> 
+                        <span style="color: #444; font-weight: 600;">Điểm đến có Tour</span>
                     </div>
                 </div>
-             </div>
+            </div>
+
+            <!-- Right: Sidebar -->
+            <div class="col-lg-4" style="background: white; display: flex; flex-direction: column; height: 520px;">
+                <div class="p-3 border-bottom" style="background: #f8f9fa;">
+                    <h6 class="mb-0" style="font-weight: 800; color: #333;">
+                        <i class="fa-solid fa-location-arrow me-2 text-primary"></i>Địa danh gợi ý <span v-if="userLat" class="text-muted" style="font-size: 0.8rem;">(Gần bạn nhất)</span>
+                    </h6>
+                </div>
+                
+                <div class="flex-grow-1 overflow-auto custom-scrollbar" style="padding: 0;">
+                    <template v-if="uniqueLocations && uniqueLocations.length > 0">
+                        <div v-for="(loc, index) in uniqueLocations" :key="index" 
+                             @click="focusLocation(loc)"
+                             class="p-3 border-bottom location-item" 
+                             style="cursor: pointer; transition: all 0.2s ease;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div style="font-weight: 700; color: #006ce4; font-size: 0.95rem;">{{ loc.dia_diem }}</div>
+                                    <div style="font-size: 0.75rem; color: #666; margin-top: 2px;">{{ loc.description || 'Khám phá vẻ đẹp tại ' + loc.dia_diem }}</div>
+                                </div>
+                                <div v-if="loc.distance" class="badge rounded-pill bg-light text-dark border" style="font-size: 0.7rem; font-weight: 600; padding: 5px 10px;">
+                                    {{ loc.distance.toFixed(1) }} km
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div v-else class="p-4 text-center text-muted">
+                        <i class="fa-regular fa-map fa-3x mb-3 d-block opacity-25"></i>
+                        Đang cập nhật địa danh...
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -650,9 +687,39 @@ export default {
             currentLocationStatus: "",
             map: null,
             userMarker: null,
+            userLat: null,
+            userLon: null,
         }
     },
     computed: {
+        uniqueLocations() {
+            if (!this.listTour || this.listTour.length === 0) return [];
+            
+            const locs = [];
+            const seen = new Set();
+            
+            this.listTour.forEach(tour => {
+                if (tour.latitude && tour.longitude && !seen.has(tour.dia_diem)) {
+                    seen.add(tour.dia_diem);
+                    let dist = null;
+                    if (this.userLat && this.userLon) {
+                        dist = this.getDistance(this.userLat, this.userLon, tour.latitude, tour.longitude);
+                    }
+                    locs.push({
+                        dia_diem: tour.dia_diem,
+                        latitude: tour.latitude,
+                        longitude: tour.longitude,
+                        distance: dist,
+                        description: tour.mo_ta_ngan || "Khám phá địa điểm du lịch tuyệt vời này cùng NHTravel."
+                    });
+                }
+            });
+
+            if (this.userLat && this.userLon) {
+                return locs.sort((a, b) => (a.distance || 9999) - (b.distance || 9999));
+            }
+            return locs;
+        },
         totalPages() {
             return Math.ceil(this.listTour.length / this.toursPerPage);
         },
@@ -772,6 +839,8 @@ export default {
                 (position) => {
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
+                    this.userLat = lat;
+                    this.userLon = lon;
                     
                     // Update Map with User Location
                     if (this.map) {
@@ -837,6 +906,18 @@ export default {
             .finally(() => {
                 this.isLoadingLocation = false; 
             });
+        },
+        getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Radius of the earth in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 0.5 - Math.cos(dLat) / 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * (1 - Math.cos(dLon)) / 2;
+            return R * 2 * Math.asin(Math.sqrt(a));
+        },
+        focusLocation(loc) {
+            if (!this.map) return;
+            this.map.flyTo([loc.latitude, loc.longitude], 12);
+            // Search for marker and open popup logic could be added here if needed
         },
         initMap() {
             if (!this.listTour || this.listTour.length === 0) return;
@@ -940,5 +1021,21 @@ export default {
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+}
+.location-item:hover {
+    background-color: #f0f7ff !important;
+}
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #006ce4;
 }
 </style>
