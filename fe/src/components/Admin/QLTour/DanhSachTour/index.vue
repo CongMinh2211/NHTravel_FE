@@ -174,10 +174,31 @@
                             <input type="text" v-model="editTour.ma_tour" class="form-control">
                         </div>
 
-                        <!-- Tên tour -->
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Tên Tour</label>
-                            <input type="text" v-model="editTour.ten_tour" class="form-control">
+                        <!-- Tên tour & Địa điểm (Tỉnh/Thành) -->
+                        <div class="row">
+                            <div class="col-8 mb-3">
+                                <label class="form-label fw-bold">Tên Tour</label>
+                                <input type="text" v-model="editTour.ten_tour" class="form-control">
+                            </div>
+                            <div class="col-4 mb-3">
+                                <label class="form-label fw-bold">Địa điểm (Tỉnh/Thành)</label>
+                                <select class="form-select" v-model="editTour.dia_diem" @change="updateEditCoordinates">
+                                    <option value="">-- Chọn --</option>
+                                    <option v-for="(prov, idx) in list34Provinces" :key="idx" :value="prov.name">{{ prov.name }}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tọa độ -->
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">Vĩ độ (Latitude)</label>
+                                <input type="text" v-model="editTour.latitude" class="form-control" placeholder="VD: 10.762622">
+                            </div>
+                            <div class="col-6 mb-3">
+                                <label class="form-label fw-bold">Kinh độ (Longitude)</label>
+                                <input type="text" v-model="editTour.longitude" class="form-control" placeholder="VD: 106.660172">
+                            </div>
                         </div>
 
                         <!-- Mô tả -->
@@ -513,7 +534,42 @@ export default {
             showDeleteModal: false,
             editTour: {},
             deleteTour: {},
-
+            list34Provinces: [
+                { name: 'Hà Nội', lat: 21.028511, lng: 105.804817 },
+                { name: 'Lào Cai (Sapa)', lat: 22.339396, lng: 103.840618 },
+                { name: 'Quảng Ninh (Hạ Long)', lat: 20.959902, lng: 107.096230 },
+                { name: 'Ninh Bình', lat: 20.253912, lng: 105.975000 },
+                { name: 'Hải Phòng (Cát Bà)', lat: 20.844912, lng: 106.688084 },
+                { name: 'Hà Giang', lat: 22.823351, lng: 104.980649 },
+                { name: 'Sơn La (Mộc Châu)', lat: 20.852433, lng: 104.577242 },
+                { name: 'Điện Biên', lat: 21.385494, lng: 103.015243 },
+                { name: 'Cao Bằng', lat: 22.658253, lng: 106.262502 },
+                { name: 'Thừa Thiên Huế', lat: 16.463713, lng: 107.590866 },
+                { name: 'Đà Nẵng', lat: 16.054407, lng: 108.202167 },
+                { name: 'Quảng Nam (Hội An)', lat: 15.880058, lng: 108.338047 },
+                { name: 'Quảng Bình (Phong Nha)', lat: 17.483320, lng: 106.598270 },
+                { name: 'Nghệ An (Cửa Lò)', lat: 18.673323, lng: 105.681329 },
+                { name: 'Phú Yên', lat: 13.088185, lng: 109.313593 },
+                { name: 'Bình Định (Quy Nhơn)', lat: 13.775836, lng: 109.219263 },
+                { name: 'Khánh Hòa (Nha Trang)', lat: 12.238791, lng: 109.196749 },
+                { name: 'Bình Thuận (Mũi Né)', lat: 10.933333, lng: 108.100000 },
+                { name: 'Ninh Thuận', lat: 11.565863, lng: 108.992200 },
+                { name: 'Lâm Đồng (Đà Lạt)', lat: 11.940419, lng: 108.458313 },
+                { name: 'Kon Tum (Măng Đen)', lat: 14.348633, lng: 108.000720 },
+                { name: 'Gia Lai', lat: 13.978280, lng: 108.007620 },
+                { name: 'Đắk Lắk (Buôn Ma Thuột)', lat: 12.666667, lng: 108.033333 },
+                { name: 'Hồ Chí Minh', lat: 10.823099, lng: 106.629662 },
+                { name: 'Bà Rịa - Vũng Tàu', lat: 10.411401, lng: 107.136247 },
+                { name: 'Kiên Giang (Phú Quốc)', lat: 10.224855, lng: 103.957599 },
+                { name: 'Cần Thơ', lat: 10.045162, lng: 105.746853 },
+                { name: 'An Giang (Châu Đốc)', lat: 10.728952, lng: 105.125896 },
+                { name: 'Cà Mau', lat: 9.176918, lng: 105.150058 },
+                { name: 'Bến Tre', lat: 10.240562, lng: 106.375496 },
+                { name: 'Đồng Tháp (Sa Đéc)', lat: 10.291771, lng: 105.753386 },
+                { name: 'Tiền Giang (Mỹ Tho)', lat: 10.354013, lng: 106.365942 },
+                { name: 'Tây Ninh', lat: 11.311550, lng: 106.096388 },
+                { name: 'Vĩnh Phúc (Tam Đảo)', lat: 21.456673, lng: 105.642055 }
+            ]
         }
     },
 
@@ -586,6 +642,16 @@ export default {
                     console.error(err);
                     this.$toast.error("Không lấy được chi tiết tour!");
                 });
+        },
+        updateEditCoordinates() {
+            const selected = this.list34Provinces.find(p => p.name === this.editTour.dia_diem);
+            if (selected) {
+                this.editTour.latitude = selected.lat;
+                this.editTour.longitude = selected.lng;
+            } else {
+                this.editTour.latitude = '';
+                this.editTour.longitude = '';
+            }
         },
 
 

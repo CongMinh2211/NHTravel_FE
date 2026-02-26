@@ -42,10 +42,35 @@
                                 <input type="email" v-model="user.email" placeholder="Nhập email"
                                     class="form-control form-control-lg" style="border-radius: 50rem;">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Địa chỉ</label>
-                                <input v-model="user.dia_chi" class="form-control form-control-lg" type="text"
-                                    placeholder="Nhập địa chỉ" style="border-radius: 50rem;">
+                            <div class="col-md-12 mt-3">
+                                <label class="form-label fw-bold">Địa chỉ chi tiết <span class="text-danger">*</span></label>
+                                <div v-if="user.dia_chi && !selectedProvince" class="mb-2 text-muted">
+                                    <i class="fa-solid fa-location-dot me-1"></i> Địa chỉ hiện tại: <strong>{{ user.dia_chi }}</strong> (Chọn bên dưới nếu muốn thay đổi)
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-md-4">
+                                        <select v-model="selectedProvince" @change="fetchDistricts" class="form-select form-select-lg" style="border-radius: 50rem;">
+                                            <option value="">Chọn Tỉnh/Thành</option>
+                                            <option v-for="p in provinces" :key="p.code" :value="p">{{ p.name }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select v-model="selectedDistrict" @change="fetchWards" :disabled="!selectedProvince" class="form-select form-select-lg" style="border-radius: 50rem;">
+                                            <option value="">Chọn Quận/Huyện</option>
+                                            <option v-for="d in districts" :key="d.code" :value="d">{{ d.name }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select v-model="selectedWard" :disabled="!selectedDistrict" class="form-select form-select-lg" style="border-radius: 50rem;">
+                                            <option value="">Chọn Phường/Xã</option>
+                                            <option v-for="w in wards" :key="w.code" :value="w">{{ w.name }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <input v-model="specificAddress" class="form-control form-control-lg" type="text"
+                                            placeholder="Số nhà, Tên đường, Thôn/Xóm..." style="border-radius: 50rem;">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -360,6 +385,7 @@ export default {
         await this.checkAuth();
         this.loadDatTour();
         this.tinhTien();
+        this.fetchProvinces();
     },
 
     data() {
@@ -385,6 +411,15 @@ export default {
             agreePolicy: false,
             isBooking: false,
             selectedPaymentMethod: 'sepay',  // Mặc định là SePay
+
+            // Address variables
+            selectedProvince: '',
+            selectedDistrict: '',
+            selectedWard: '',
+            specificAddress: '',
+            provinces: [],
+            districts: [],
+            wards: [],
         };
     },
     methods: {
@@ -475,7 +510,48 @@ export default {
                     }
                 });
         },
+        async fetchProvinces() {
+            try {
+                const res = await axios.get('https://provinces.open-api.vn/api/?depth=1');
+                this.provinces = res.data;
+            } catch (error) {
+                console.error("Lỗi lấy danh sách tỉnh thành", error);
+            }
+        },
+        async fetchDistricts() {
+            this.selectedDistrict = '';
+            this.selectedWard = '';
+            this.districts = [];
+            this.wards = [];
+            if (!this.selectedProvince) return;
+            try {
+                const res = await axios.get(`https://provinces.open-api.vn/api/p/${this.selectedProvince.code}?depth=2`);
+                this.districts = res.data.districts;
+            } catch (error) {
+                console.error("Lỗi lấy danh sách quận huyện", error);
+            }
+        },
+        async fetchWards() {
+            this.selectedWard = '';
+            this.wards = [];
+            if (!this.selectedDistrict) return;
+            try {
+                const res = await axios.get(`https://provinces.open-api.vn/api/d/${this.selectedDistrict.code}?depth=2`);
+                this.wards = res.data.wards;
+            } catch (error) {
+                console.error("Lỗi lấy danh sách phường xã", error);
+            }
+        },
         bookTour() {
+
+            // Combine address from specific API selections if user modified dropdowns
+            if (this.selectedProvince || this.selectedDistrict || this.selectedWard || this.specificAddress) {
+                if (!this.selectedProvince || !this.selectedDistrict || !this.selectedWard || !this.specificAddress) {
+                    this.$toast.error("Vui lòng chọn đầy đủ Tỉnh/Huyện/Xã và nhập địa chỉ cụ thể!");
+                    return;
+                }
+                this.user.dia_chi = `${this.specificAddress}, ${this.selectedWard.name}, ${this.selectedDistrict.name}, ${this.selectedProvince.name}`;
+            }
 
             // 1) Kiểm tra tick điều khoản
             if (!this.agreePolicy) {
@@ -504,8 +580,8 @@ export default {
             }
 
             // 5) Kiểm tra địa chỉ
-            if (this.user.dia_chi && this.user.dia_chi.trim().length < 5) {
-                this.$toast.error("Địa chỉ quá ngắn, vui lòng nhập cụ thể hơn!");
+            if (!this.user.dia_chi || this.user.dia_chi.trim().length < 5) {
+                this.$toast.error("Địa chỉ hoặc thông tin chọn quá ngắn, vui lòng nhập đầy đủ địa chỉ cụ thể!");
                 return;
             }
 
