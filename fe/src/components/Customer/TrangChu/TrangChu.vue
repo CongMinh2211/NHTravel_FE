@@ -194,8 +194,8 @@
                     </div>
                     <div v-else class="p-5 text-center text-muted">
                         <i class="fa-regular fa-map fa-3x mb-3 d-block opacity-25"></i>
-                        <p class="mb-1">Chưa có địa danh nào có tọa độ.</p>
-                        <small>Vui lòng cập nhật tọa độ tour trong Admin.</small>
+                        <p class="mb-1">Đang tìm kiếm địa danh...</p>
+                        <small>Vui lòng đảm bảo các tour có tên địa điểm rõ ràng.</small>
                     </div>
                 </div>
             </div>
@@ -700,10 +700,71 @@ export default {
             currentLocationStatus: "",
             map: null,
             userMarker: null,
-            userLat: null,
             userLon: null,
             weatherStore: {},
             isLoadingData: true,
+            locationCoords: {
+                "Hà Nội": [21.0285, 105.8542],
+                "TP. Hồ Chí Minh": [10.8231, 106.6297],
+                "Sài Gòn": [10.8231, 106.6297],
+                "Đà Nẵng": [16.0544, 108.2022],
+                "Nha Trang": [12.2388, 109.1967],
+                "Khánh Hòa": [12.2388, 109.1967],
+                "Đà Lạt": [11.9404, 108.4583],
+                "Lâm Đồng": [11.9404, 108.4583],
+                "Huế": [16.4637, 107.5909],
+                "Thừa Thiên Huế": [16.4637, 107.5909],
+                "Hội An": [15.8801, 108.3380],
+                "Quảng Nam": [15.8801, 108.3380],
+                "Phú Quốc": [10.2289, 103.9572],
+                "Kiên Giang": [10.02, 105.08],
+                "Sapa": [22.3364, 103.8438],
+                "Lào Cai": [22.3364, 103.8438],
+                "Ninh Bình": [20.2506, 105.9745],
+                "Hạ Long": [20.9505, 107.0733],
+                "Quảng Ninh": [20.9505, 107.0733],
+                "Cần Thơ": [10.0333, 105.7833],
+                "Vũng Tàu": [10.3460, 107.0843],
+                "Bà Rịa - Vũng Tàu": [10.3460, 107.0843],
+                "Mũi Né": [10.9333, 108.1000],
+                "Phan Thiết": [10.9333, 108.1000],
+                "Bình Thuận": [10.9333, 108.1000],
+                "Quy Nhơn": [13.7767, 109.2243],
+                "Bình Định": [13.7767, 109.2243],
+                "Gia Lai": [13.9833, 108.0000],
+                "Pleiku": [13.9833, 108.0000],
+                "Hà Giang": [22.8233, 104.9833],
+                "Cao Bằng": [22.6667, 106.2500],
+                "Sơn La": [21.3167, 103.9167],
+                "Bắc Kạn": [22.1500, 105.8333],
+                "Tuyên Quang": [21.8167, 105.2167],
+                "Lạng Sơn": [21.8500, 106.7500],
+                "Thái Nguyên": [21.5833, 105.8500],
+                "Phú Thọ": [21.3167, 105.2167],
+                "Bắc Giang": [21.2667, 106.1833],
+                "Bắc Ninh": [21.1833, 106.0667],
+                "Quảng Bình": [17.4833, 106.6000],
+                "Quảng Trị": [16.7500, 107.1833],
+                "Quảng Ngãi": [15.1167, 108.8000],
+                "Kon Tum": [14.3500, 108.0000],
+                "Đắk Lắk": [12.6667, 108.0500],
+                "Đắk Nông": [12.0000, 107.6833],
+                "Ninh Thuận": [11.5667, 108.9833],
+                "Tây Ninh": [11.3000, 106.1167],
+                "Bình Dương": [11.0000, 106.6667],
+                "Đồng Nai": [10.9500, 106.8167],
+                "Long An": [10.5333, 106.4000],
+                "Đồng Tháp": [10.4500, 105.6333],
+                "An Giang": [10.3833, 105.4167],
+                "Tiền Giang": [10.4167, 106.3667],
+                "Vĩnh Long": [10.2500, 105.9667],
+                "Bến Tre": [10.2333, 106.3667],
+                "Trà Vinh": [9.9333, 106.3333],
+                "Hậu Giang": [9.7833, 105.4667],
+                "Sóc Trăng": [9.6000, 105.9667],
+                "Bạc Liêu": [9.2833, 105.7167],
+                "Cà Mau": [9.1833, 105.1500]
+            }
         }
     },
     computed: {
@@ -714,16 +775,28 @@ export default {
             const seen = new Set();
             
             this.listTour.forEach(tour => {
-                if (tour.latitude && tour.longitude && !seen.has(tour.dia_diem)) {
+                let lat = tour.latitude;
+                let lon = tour.longitude;
+                
+                // CLIENT-SIDE GEOCODING FALLBACK
+                if (!lat || !lon) {
+                    const mapped = this.locationCoords[tour.dia_diem];
+                    if (mapped) {
+                        lat = mapped[0];
+                        lon = mapped[1];
+                    }
+                }
+
+                if (lat && lon && !seen.has(tour.dia_diem)) {
                     seen.add(tour.dia_diem);
                     let dist = null;
                     if (this.userLat && this.userLon) {
-                        dist = this.getDistance(this.userLat, this.userLon, tour.latitude, tour.longitude);
+                        dist = this.getDistance(this.userLat, this.userLon, lat, lon);
                     }
                     locs.push({
                         dia_diem: tour.dia_diem,
-                        latitude: tour.latitude,
-                        longitude: tour.longitude,
+                        latitude: lat,
+                        longitude: lon,
                         distance: dist,
                         description: tour.mo_ta_ngan || "Khám phá địa điểm du lịch tuyệt vời này cùng NHTravel."
                     });
@@ -1000,10 +1073,22 @@ export default {
 
             const mapTours = {};
             this.listTour.forEach(tour => {
-                if (tour.latitude && tour.longitude) {
-                    const key = `${tour.latitude},${tour.longitude}`;
+                let lat = tour.latitude;
+                let lng = tour.longitude;
+
+                // Geocoding Fallback
+                if (!lat || !lng) {
+                    const mapped = this.locationCoords[tour.dia_diem];
+                    if (mapped) {
+                        lat = mapped[0];
+                        lng = mapped[1];
+                    }
+                }
+
+                if (lat && lng) {
+                    const key = `${lat},${lng}`;
                     if (!mapTours[key]) {
-                        mapTours[key] = { lat: tour.latitude, lng: tour.longitude, dia_diem: tour.dia_diem, tours: [] };
+                        mapTours[key] = { lat: lat, lng: lng, dia_diem: tour.dia_diem, tours: [] };
                     }
                     mapTours[key].tours.push(tour);
                 }
