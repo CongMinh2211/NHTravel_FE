@@ -6,8 +6,9 @@ use App\Models\NguoiDung;
 use App\Mail\MasterMail;
 use App\Models\ChucVu;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 
@@ -19,12 +20,27 @@ class NguoiDungController
     {
 
 
-        // Tìm user theo email và password
-        $user = NguoiDung::where('email', $request->email)
-            ->where('password', $request->password)
-            ->first();
+        // Tìm user theo email
+        $user = NguoiDung::where('email', $request->email)->first();
 
         if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Thông tin đăng nhập không chính xác.'
+            ], 401);
+        }
+
+        // Kiểm tra mật khẩu - hỗ trợ cả plain text và hashed password
+        $passwordValid = false;
+        if ($user->password && strlen($user->password) >= 60) {
+            // Nếu password trong DB có vẻ là hash (BCrypt >= 60 ký tự), dùng Hash::check
+            $passwordValid = Hash::check($request->password, $user->password);
+        } else {
+            // So sánh trực tiếp cho plain text
+            $passwordValid = ($user->password === $request->password);
+        }
+
+        if (!$passwordValid) {
             return response()->json([
                 'status' => false,
                 'message' => 'Thông tin đăng nhập không chính xác.'
@@ -119,7 +135,7 @@ class NguoiDungController
             $user = NguoiDung::create([
                 'ho_ten'        => $request->ho_ten,
                 'email'         => $request->email,
-                'password'      => $request->password, // Lưu ý: Cân nhắc mã hóa mật khẩu
+                'password'      => Hash::make($request->password), // Đã mã hóa mật khẩu
                 'cccd'          => $request->cccd,
                 'so_dien_thoai' => $request->so_dien_thoai,
                 'ngay_sinh'     => $request->ngay_sinh,
@@ -287,7 +303,7 @@ class NguoiDungController
                 'cccd'          => $request->cccd,
                 'id_chuc_vu'    => $request->id_chuc_vu,
                 'trang_thai'    => $request->trang_thai ?? 'active',
-                'password'      => $request->password,
+                'password'      => Hash::make($request->password),
                 'avatar'        => $request->avatar,
             ]);
 
@@ -337,7 +353,7 @@ class NguoiDungController
                 'cccd'          => $request->cccd,
                 'id_chuc_vu'    => $request->id_chuc_vu,
                 'trang_thai'    => $request->trang_thai,
-                'password'      => $request->password, // Lưu thẳng
+                'password'      => $request->password ? Hash::make($request->password) : $nguoiDung->password,
                 'avatar'        => $request->avatar,
             ]);
 
@@ -470,8 +486,15 @@ class NguoiDungController
             're_password_moi.same' => 'Mật khẩu xác nhận không khớp.',
         ]);
 
-        // Kiểm tra mật khẩu cũ (Vì đang dùng lưu thẳng không hash nên so sánh trực tiếp)
-        if ($user->password !== $request->password_cu) {
+        // Kiểm tra mật khẩu cũ (Hỗ trợ cả plain text và hash)
+        $passwordOldValid = false;
+        if ($user->password && strlen($user->password) >= 60) {
+            $passwordOldValid = Hash::check($request->password_cu, $user->password);
+        } else {
+            $passwordOldValid = ($user->password === $request->password_cu);
+        }
+
+        if (!$passwordOldValid) {
             return response()->json([
                 'status' => false,
                 'message' => 'Mật khẩu cũ không chính xác.'
@@ -481,7 +504,7 @@ class NguoiDungController
         // Lấy lại model Eloquent chính xác
         $me = NguoiDung::find($user->id);
         $me->update([
-            'password' => $request->password_moi
+            'password' => Hash::make($request->password_moi)
         ]);
 
         return response()->json([
