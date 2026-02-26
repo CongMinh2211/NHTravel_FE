@@ -126,6 +126,32 @@
 
     </div>
 
+    <!-- INTERACTIVE TOUR DISCOVERY MAP -->
+    <div class="container mt-5 pt-3 mb-5" data-animate="fade-in-up" style="opacity: 0; transform: translateY(30px); transition: all 0.8s ease;">
+        <div class="text-center mb-4">
+            <h2 style="color: #ff5722; font-weight: 800; font-size: 2rem;">
+                <i class="fa-solid fa-map-location-dot me-2"></i>Bản đồ Khám Phá Touring
+            </h2>
+            <p style="color: #666; font-size: 1.05rem;">
+                Xem trực tiếp thời tiết và chọn điểm đến lý tưởng nhất cho chuyến đi của bạn trên bản đồ.
+            </p>
+        </div>
+        
+        <div class="row w-100 mx-auto justify-content-center">
+             <div class="col-12" style="position: relative;">
+                <div id="tourMap" style="height: 500px; width: 100%; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 2px solid #e2e8f0; position: relative; z-index: 1;"></div>
+                
+                <div style="position: absolute; bottom: 20px; right: 20px; z-index: 500; background: rgba(255,255,255,0.95); padding: 12px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    <div style="font-size: 0.85rem; font-weight: bold; margin-bottom: 8px;"><i class="fa-solid fa-circle-info me-1"></i> Chú giải:</div>
+                    <div style="font-size: 0.8rem; display: flex; align-items: center;">
+                        <span style="background-color:#ff5722; width: 16px; height: 16px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.5); display: inline-block; margin-right: 8px;"></span> 
+                        <span>Điểm đến có Tour</span>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </div>
+
     <!-- LOCATION SUGGESTION SECTION - REDESIGNED -->
     <div class="location-suggest-section" data-animate="fade-in-up"
          style="opacity: 0; transform: translateY(30px); transition: all 0.8s ease;
@@ -622,7 +648,7 @@ export default {
             suggestedTours: [],
             isLoadingLocation: false,
             currentLocationStatus: "",
-
+            map: null,
         }
     },
     computed: {
@@ -692,6 +718,13 @@ export default {
                         }
                     });
                     this.listBaiViet = res.data.data_bv;
+                    
+                    // Render interactive map with weather
+                    this.$nextTick(() => {
+                        if (typeof window.L !== 'undefined') {
+                            this.initMap();
+                        }
+                    });
                 })
         },
         submitSearch() {
@@ -783,6 +816,89 @@ export default {
             })
             .finally(() => {
                 this.isLoadingLocation = false; 
+            });
+        },
+        initMap() {
+            if (!this.listTour || this.listTour.length === 0) return;
+            
+            if (this.map) {
+                this.map.remove();
+            }
+
+            this.map = window.L.map('tourMap').setView([16.16667, 107.83333], 5);
+
+            window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(this.map);
+
+            const customIcon = window.L.divIcon({
+                className: '',
+                html: "<div style='background-color:#ff5722; width: 22px; height: 22px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.5);'></div>",
+                iconSize: [22, 22],
+                iconAnchor: [11, 11]
+            });
+
+            const mapTours = {};
+            this.listTour.forEach(tour => {
+                if (tour.latitude && tour.longitude) {
+                    const key = `${tour.latitude},${tour.longitude}`;
+                    if (!mapTours[key]) {
+                        mapTours[key] = { lat: tour.latitude, lng: tour.longitude, dia_diem: tour.dia_diem, tours: [] };
+                    }
+                    mapTours[key].tours.push(tour);
+                }
+            });
+
+            for (const key in mapTours) {
+                const loc = mapTours[key];
+                const marker = window.L.marker([loc.lat, loc.lng], { icon: customIcon }).addTo(this.map);
+                
+                marker.on('click', () => {
+                    this.fetchWeatherAndShowPopup(marker, loc);
+                });
+            }
+        },
+        fetchWeatherAndShowPopup(marker, locInfo) {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${locInfo.lat}&longitude=${locInfo.lng}&current_weather=true`;
+            
+            axios.get(url).then(res => {
+                const weather = res.data.current_weather;
+                let condition = "Quang đãng";
+                let emoji = "☀️";
+                if(weather.weathercode >= 1 && weather.weathercode <= 3) { condition = "Có mây"; emoji = "⛅"; }
+                if(weather.weathercode >= 51 && weather.weathercode <= 67) { condition = "Mưa vài nơi"; emoji = "🌧️"; }
+                if(weather.weathercode >= 71) { condition = "Mưa tuyết / Xấu"; emoji = "❄️"; }
+                if(weather.weathercode >= 80) { condition = "Mưa rào"; emoji = "🌩️"; }
+
+                let popupContent = `
+                    <div style="min-width: 220px; font-family: Arial, sans-serif;">
+                        <h6 style="color: #ff5722; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #eee; padding-bottom: 5px;">
+                            📍 ${locInfo.dia_diem}
+                        </h6>
+                        <div style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                            <div>
+                                <div style="font-size: 1.4rem; font-weight: bold; color: #333;">${weather.temperature}°C</div>
+                                <div style="font-size: 0.8rem; color: #666;">${condition}</div>
+                            </div>
+                            <div style="font-size: 2rem;">${emoji}</div>
+                        </div>
+                        <p style="font-size: 0.85rem; font-weight: bold; margin-bottom: 5px;">Có ${locInfo.tours.length} tours tại đây:</p>
+                        <ul style="padding-left: 15px; margin-bottom: 0; font-size: 0.85rem;">
+                `;
+                
+                const displayTours = locInfo.tours.slice(0, 3);
+                displayTours.forEach(t => {
+                    popupContent += `<li><a href="/chi-tiet-tour/${t.id}" style="color: #007bff; text-decoration: none; font-weight:bold;">${t.ten_tour}</a></li>`;
+                });
+                if(locInfo.tours.length > 3) {
+                    popupContent += `<li><i style="color: #999;">...và ${locInfo.tours.length - 3} tour khác.</i></li>`;
+                }
+                
+                popupContent += `</ul></div>`;
+                
+                marker.bindPopup(popupContent, { minWidth: 250 }).openPopup();
+            }).catch(err => {
+                marker.bindPopup(`<b>${locInfo.dia_diem}</b><br>Đang có ${locInfo.tours.length} tour.`).openPopup();
             });
         }
     }
